@@ -13,7 +13,7 @@ Map<String,dynamic> toMap(){
     "gender":this.gender,
     "age":this.age,
     "image":this.imgurl,
-    "phone number":this.phno,
+    "phone_number":this.phno,
   };
 
 }

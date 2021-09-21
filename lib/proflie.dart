@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:core';
 import 'dart:io' as io;
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +18,11 @@ import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/ProflieModle.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
-
+import 'Dashboard.dart';
 import 'main.dart';
 
+
+final usersRef= FirebaseFirestore.instance.collection('users');
 class Proflie extends StatefulWidget {
   const Proflie({Key? key}) : super(key: key);
 
@@ -31,6 +35,7 @@ class Proflie extends StatefulWidget {
 
 class _ProflieState extends State<Proflie> {
 
+
   @override
   String? ph;
   void initState() {
@@ -42,17 +47,18 @@ class _ProflieState extends State<Proflie> {
       Timer(Duration(seconds: 2),() => Get.to(ph!=null ?Proflie(): MyHomePage()));
       setState(() {});
     });
+
   }
 
   String? _downloadurl;
-  final name = TextEditingController();
+   final name = TextEditingController();
   final age = TextEditingController();
   final gender = TextEditingController();
   final imgurl= TextEditingController();
   final phno=TextEditingController();
 
   String? fliename;
-
+  String? tname;
   Future<void> insertData(final register) async {
     FirebaseFirestore firestore = FirebaseFirestore.instance;
     firestore.collection("users").add(register)
@@ -60,10 +66,10 @@ class _ProflieState extends State<Proflie> {
       print(document.id);
     }).catchError((e) {
       print(e);
+
     });
   }
-
-  File? _image;
+   File? _image;
   ImagePicker imagePicker = ImagePicker();
 
   Future getImage() async {
@@ -226,6 +232,8 @@ class _ProflieState extends State<Proflie> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
+                        /*  Get.to(DashboardScreen());
+*/
 
                         },
                         style: ButtonStyle(
@@ -260,6 +268,7 @@ class _ProflieState extends State<Proflie> {
         ),
 
       );
+
     }
   }
 

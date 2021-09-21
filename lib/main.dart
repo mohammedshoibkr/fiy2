@@ -248,40 +248,6 @@ class _MyHomePageState extends State<MyHomePage> {
                    ),
                  ),
 
-
-
-
-
-                 /*TextFormField(
-                   controller: _phoneNumberController,
-                   style: TextStyle(
-                     fontSize: 18,
-                     fontWeight: FontWeight.bold,
-                   ),
-                   decoration: InputDecoration(
-                     enabledBorder: OutlineInputBorder(
-                         borderSide: BorderSide(color: Colors.black12),
-                         borderRadius: BorderRadius.circular(10)),
-                     focusedBorder: OutlineInputBorder(
-                         borderSide: BorderSide(color: Colors.black12),
-                         borderRadius: BorderRadius.circular(10)),
-                     prefix: Padding(
-                       padding: EdgeInsets.symmetric(horizontal: 8),
-                       child: Text(
-                         '(+91)',
-                         style: TextStyle(
-                           fontSize: 18,
-                           fontWeight: FontWeight.bold,
-                         ),
-                       ),
-                     ),
-                     suffixIcon: Icon(
-                       Icons.check_circle,
-                       color: Colors.green,
-                       size: 32,
-                     ),
-                   ),
-                 ),*/
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     alignment: Alignment.center,
