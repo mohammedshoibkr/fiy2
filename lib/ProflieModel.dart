@@ -1,11 +1,12 @@
-class ProflieModle{
+class ProflieModel{
 final String? phno;
 final String name;
 final String gender;
 final String age;
-final String? imgurl;
+final String imgurl;
+static const String ph_key="phone_number";
 
-ProflieModle({ required this.name, required this.gender, required this.age,required this.imgurl,required this.phno});
+ProflieModel({ required this.name, required this.gender, required this.age,required this.imgurl,required this.phno});
 
 Map<String,dynamic> toMap(){
   return{

@@ -16,10 +16,10 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:untitled/ProflieModle.dart';
+import 'package:untitled/ProflieModel.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
-import 'Dashboard.dart';
 import 'main.dart';
+import 'package:untitled/NavBar.dart';
 
 
 final usersRef= FirebaseFirestore.instance.collection('users');
@@ -34,21 +34,36 @@ class Proflie extends StatefulWidget {
 }
 
 class _ProflieState extends State<Proflie> {
-
+  String? ph;
+  ProflieModel? register = ProflieModel(name: '', gender: '', age: '', imgurl: 'file:///assets/images/proflie.png', phno: '');
 
   @override
-  String? ph;
   void initState() {
     SharedPreferences sharedPreferences;
     super.initState();
     SharedPreferences.getInstance().then((SharedPreferences sp) {
       sharedPreferences = sp;
-      ph = sp.getString('phone');
-      Timer(Duration(seconds: 2),() => Get.to(ph!=null ?Proflie(): MyHomePage()));
+      if( sp.containsKey(ProflieModel.ph_key) )
+      {
+        //in this case the app is already installed, so we need to get details of user
+        ph = sp.getString(ProflieModel.ph_key);
+        FirebaseFirestore.instance
+            .collection('users')
+            .where(ProflieModel.ph_key, isEqualTo: ph)
+            .get().then((value)  {
+          register = ProflieModel(phno: value.docs[0].data()[ProflieModel.ph_key],name: value.docs[0].data()['name'], gender:  value.docs[0].data()['gender'], age: value.docs[0].data()['age'],imgurl:  value.docs[0].data()['image']);
+          name.text=register!.name;
+          age.text=register!.age;
+        });
+       /* Timer(Duration(seconds: 2),() => Get.to(ph!=null ?Proflie(): MyHomePage()));*/
+      }else{
+
+      }
       setState(() {});
     });
 
   }
+
 
   String? _downloadurl;
    final name = TextEditingController();
@@ -116,6 +131,10 @@ class _ProflieState extends State<Proflie> {
 
     Widget build(BuildContext context) {
       return Scaffold(
+        drawer: NavBar(),
+        appBar: AppBar(
+          title: Text('FIY'),
+        ),
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         body: SafeArea(
@@ -132,7 +151,8 @@ class _ProflieState extends State<Proflie> {
                       color: Colors.transparent,
                       child: (_image != null) ? Image.file(
                         _image!, fit: BoxFit.fill,) : Ink.image(
-                        image: AssetImage("assets/images/proflie.png"),
+                      /*  image: AssetImage("assets/images/proflie.png"),*/
+                        image: NetworkImage('https://avatars.githubusercontent.com/u/86800136?s=20&v=4'),
                         fit: BoxFit.cover,
                         width: 120.0,
                         height: 120.0,
@@ -147,7 +167,7 @@ class _ProflieState extends State<Proflie> {
                     SizedBox(
                       height: 50,
                     ),
-                    TextFormField(
+                    TextField(
                       controller: name,
                       keyboardType: TextInputType.text,
                       style:
@@ -196,9 +216,8 @@ class _ProflieState extends State<Proflie> {
                           final String pgender = gender.text;
                           final String page = age.text;
                           final String pimgurl=imgurl.text;
-                          final ProflieModle register = ProflieModle(phno:ph,name: pname, gender: pgender, age: page,imgurl: _downloadurl);
-                          insertData(register.toMap());
-
+                          register = ProflieModel(phno:ph,name: pname, gender: pgender, age: page,imgurl: _downloadurl!);
+                          insertData(register!.toMap());
                         },
 
                         style: ButtonStyle(
@@ -232,8 +251,7 @@ class _ProflieState extends State<Proflie> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                        /*  Get.to(DashboardScreen());
-*/
+                         /* Get.to(DashboardScreen());*/
 
                         },
                         style: ButtonStyle(
