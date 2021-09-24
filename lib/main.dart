@@ -10,11 +10,18 @@ import 'package:untitled/proflie.dart';
 import 'ProflieModel.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
+
+
+Future<void> _messageHandler(RemoteMessage message) async {
+  print('background message ${message.notification.body}');
+}
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_messageHandler);
   runApp(GetMaterialApp(home:MyApp()));
 }
+
 class ListItem {
   int value;
   String name;
@@ -42,34 +49,62 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 final FirebaseAuth _auth = FirebaseAuth.instance;
-final  _scaffoldKey = GlobalKey<ScaffoldState>();
+/*final  _scaffoldKey = GlobalKey<ScaffoldState>();*/
 final TextEditingController _phoneNumberController = TextEditingController();
 final TextEditingController _smsController = TextEditingController();
 String _verificationId;
 final SmsAutoFill _autoFill = SmsAutoFill();
 String phoneNumEntered;
 
-void showSnackBar(String message) {
+/*void showSnackBar(String message) {
   _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(message)));
-}
-void verifyPhoneNumber(ListItem _selectedItem) async {
+}*/
+void verifyPhoneNumber(ListItem _selectedItem,context) async {
   PhoneVerificationCompleted verificationCompleted =
       (PhoneAuthCredential phoneAuthCredential) async {
     await _auth.signInWithCredential(phoneAuthCredential);
-    showSnackBar("Phone number automatically verified and user signed in: ${_auth.currentUser.uid}");
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Phone number automatically verified and user signed in: ${_auth.currentUser.uid}"),
+            backgroundColor: Colors.indigoAccent,
+            padding: EdgeInsets.all(20),
+            shape: StadiumBorder()
+        )
+    );
   };
   PhoneVerificationFailed verificationFailed =
       (FirebaseAuthException authException) {
-        showSnackBar('Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}');
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Phone number verification failed. Code: ${authException.code}. Message: ${authException.message}'),
+                backgroundColor: Colors.indigoAccent,
+                padding: EdgeInsets.all(20),
+                shape: StadiumBorder()
+            )
+        );
   };
   PhoneCodeSent codeSent =
       (String verificationId, [int forceResendingToken]) async {
-        showSnackBar('Please check your phone for the verification code.');
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Please check your phone for the verification code.'),
+                backgroundColor: Colors.indigoAccent,
+                padding: EdgeInsets.all(20),
+                shape: StadiumBorder()
+            )
+        );
     _verificationId = verificationId;
   };
   PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
       (String verificationId) {
-        showSnackBar("verification code: " + verificationId);
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text("verification code: " + verificationId),
+                backgroundColor: Colors.indigoAccent,
+                padding: EdgeInsets.all(20),
+                shape: StadiumBorder()
+            )
+        );
     _verificationId = verificationId;
   };
   try {
@@ -82,7 +117,13 @@ void verifyPhoneNumber(ListItem _selectedItem) async {
         codeSent: codeSent,
         codeAutoRetrievalTimeout: codeAutoRetrievalTimeout);
   } catch (e) {
-    showSnackBar("Failed to Verify Phone Number: $e");
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to Verify Phone Number: $e"),
+          backgroundColor: Colors.indigoAccent,
+          padding: EdgeInsets.all(20),
+        ),
+    );
   }
 }
 void signInWithPhoneNumber(BuildContext context) async {
@@ -92,7 +133,14 @@ void signInWithPhoneNumber(BuildContext context) async {
       smsCode: _smsController.text,
     );
     final User user = (await _auth.signInWithCredential(credential)).user;
-    showSnackBar("Successfully signed in UID: ${user.uid}");
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Successfully signed in UID: ${user.uid}"),
+            backgroundColor: Colors.indigoAccent,
+            padding: EdgeInsets.all(20),
+            shape: StadiumBorder()
+        )
+    );
     SharedPreferences sharedPreferences;
     SharedPreferences.getInstance().then((SharedPreferences sp) {
       sp.setString(ProflieModel.ph_key, phoneNumEntered);
@@ -101,7 +149,14 @@ void signInWithPhoneNumber(BuildContext context) async {
         context, new MaterialPageRoute(builder: (context) => new Proflie()));
 
   } catch (e) {
-    showSnackBar("Failed to sign in: " + e.toString());
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to sign in: " /*+ e.toString()*/),
+          backgroundColor: Colors.indigoAccent,
+          padding: EdgeInsets.all(20),
+            shape: StadiumBorder()
+        )
+    );
   }
 }
 
@@ -124,6 +179,22 @@ class _MyHomePageState extends State<MyHomePage> {
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       print("message recieved");
       print(event.notification.body);
+      /*showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text("Notification"),
+              content: Text(event.notification.body),
+              actions: [
+                TextButton(
+                  child: Text("Ok"),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                )
+              ],
+            );
+          });*/
     });
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       print('Message clicked!');
@@ -189,7 +260,7 @@ class _MyHomePageState extends State<MyHomePage> {
         appBar: AppBar(
           title: Text('FIY'),
         ),
-        key: _scaffoldKey,
+        /*key: _scaffoldKey,*/
          resizeToAvoidBottomInset: false,
          backgroundColor: Color(0xfff7f6fb),
          body: Form(
@@ -246,7 +317,7 @@ class _MyHomePageState extends State<MyHomePage> {
                          TextFormField(
                            validator: (value) {
                            if(value == null || value.isEmpty){
-                             return 'Enter Valid Name';
+                             return 'Enter Valid Phone Number';
                            }
                            return null;
                          },
@@ -273,7 +344,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: ElevatedButton(
                         child: Text("Verify Number"),
                         onPressed: () async {
-                          verifyPhoneNumber(_selectedItem);
+                          verifyPhoneNumber(_selectedItem, context);
                         },
                         style: ButtonStyle(
                           foregroundColor:
