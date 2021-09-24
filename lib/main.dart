@@ -263,129 +263,88 @@ class _MyHomePageState extends State<MyHomePage> {
         /*key: _scaffoldKey,*/
          resizeToAvoidBottomInset: false,
          backgroundColor: Color(0xfff7f6fb),
-         body: Form(
-             key: _formKey,
-           child: SingleChildScrollView(
+         body: SingleChildScrollView(
+           child: Form(
+               key: _formKey,
              child: SafeArea(
-               child: Padding(
-                   padding: EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-                   child: Column(
-                     children: [
-                     Align(
-                    alignment: Alignment.topLeft,
-                     ),
-                     SizedBox(
-                      height: 18,
-                             ),
-                       Container(
-                         width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                         color: Colors.deepPurple.shade50,
-                         shape: BoxShape.circle,
-                          ),
-                           child: Image.asset(
-                           'assets/images/logo.png',
-                            ),
-                           ),
-                  SizedBox(
-                   height: 18,
-                 ),
-                   Container(
-                     padding: EdgeInsets.all(20.0),
-                     child: DropdownButton<ListItem>(
-                         value: _selectedItem,
-                         items: _dropdownMenuItems,
-                         iconSize: 24,
-                         elevation: 16,
-                         icon: const Icon(Icons.arrow_drop_down_circle_sharp),
-                         isExpanded: true,
-                         onChanged: (value) {
-                           setState(() {
-                             _selectedItem = value;
-                           });
-                         }),
-                   ),
-                    Container(
-                       padding: EdgeInsets.all(28),
-                       decoration: BoxDecoration(
-                       color: Colors.white,
-                       borderRadius: BorderRadius.circular(12),
-                          ),
-                     child:Column(
+                child: Padding(
+                     padding: EdgeInsets.symmetric(vertical: 24, horizontal: 32),
+                     child: Column(
                        children: [
-                         TextFormField(
-                           validator: (value) {
-                           if(value == null || value.isEmpty){
-                             return 'Enter Valid Phone Number';
-                           }
-                           return null;
-                         },
-                           controller: _phoneNumberController,
-                           keyboardType: TextInputType.number,
-                           style:
-                           TextStyle(fontSize: 18,fontWeight: FontWeight.bold,
-                           ),
-                           decoration: InputDecoration(
-                             labelText: 'Phone Number',
-                             enabledBorder: OutlineInputBorder(
-                                 borderSide: BorderSide(color: Colors.black),
-                                 borderRadius: BorderRadius.circular(10)),
-                               suffixIcon: Icon(Icons.check_circle,color: Colors.green)
-                           ),
-                         ),
-                       ],
-                     ),
-                   ),
-
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
-                        child: Text("Verify Number"),
-                        onPressed: () async {
-                          verifyPhoneNumber(_selectedItem, context);
-                        },
-                        style: ButtonStyle(
-                          foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.purple),
-                          backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24.0),
+                       Align(
+                      alignment: Alignment.topLeft,
+                       ),
+                       SizedBox(
+                        height: 18,
+                               ),
+                         Container(
+                           width: 100,
+                            height: 100,
+                            decoration: BoxDecoration(
+                           color: Colors.deepPurple.shade50,
+                           shape: BoxShape.circle,
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      validator: (value) {
-                        if(value == null || value.isEmpty){
-                          return 'Enter Valid Name';
-                        }
-                        return null;
-                      },
-                      controller: _smsController,
-                      decoration: const InputDecoration(labelText: 'Verification code',
-                      ),
-                      onTap: () async {
-                        await SmsAutoFill().listenForCode;
-                      },
-                    ),
-                    Container(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      alignment: Alignment.center,
-                      child: ElevatedButton(
+                             child: Image.asset(
+                             'assets/images/logo.png',
+                              ),
+                             ),
+                        SizedBox(
+                       height: 18,
+                       ),
+                       Container(
+                         padding: EdgeInsets.all(20.0),
+                         child: DropdownButton<ListItem>(
+                           value: _selectedItem,
+                           items: _dropdownMenuItems,
+                           iconSize: 24,
+                           elevation: 16,
+                           icon: const Icon(Icons.arrow_drop_down_circle_sharp),
+                           isExpanded: true,
+                           onChanged: (value) {
+                             setState(() {
+                               _selectedItem = value;
+                             });
+                           }),
+                     ),
+                        Container(
+                         padding: EdgeInsets.all(28),
+                         decoration: BoxDecoration(
+                         color: Colors.white,
+                         borderRadius: BorderRadius.circular(12),
+                            ),
+                          child:Column(
+                            children: [
+                            TextFormField(
+                             validator: (value) {
+                             if(value == null || value.isEmpty){
+                               return 'Enter Valid Phone Number';
+                               }
+                              return null;
+                              },
+                             controller: _phoneNumberController,
+                             keyboardType: TextInputType.number,
+                             style:
+                             TextStyle(fontSize: 18,fontWeight: FontWeight.bold,
+                             ),
+                             decoration: InputDecoration(
+                               labelText: 'Phone Number',
+                               enabledBorder: OutlineInputBorder(
+                                   borderSide: BorderSide(color: Colors.black),
+                                   borderRadius: BorderRadius.circular(10)),
+                                 suffixIcon: Icon(Icons.check_circle,color: Colors.green)
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        alignment: Alignment.center,
+                        child: ElevatedButton(
+                          child: Text("Verify Number"),
                           onPressed: () async {
-                            if (_formKey.currentState.validate()) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Processing Data')),
-                              );
-                            }
-                            final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-                            sharedPreferences.setString(ProflieModel.ph_key, _phoneNumberController.text);
-                            signInWithPhoneNumber(context);
+                            verifyPhoneNumber(_selectedItem, context);
                           },
                           style: ButtonStyle(
                             foregroundColor:
@@ -398,17 +357,57 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                             ),
                           ),
-                          child: Text("Sign in"),
+                        ),
                       ),
-                    ),
-                  ],
-                )
-            ),
-        )
+                      TextFormField(
+                        validator: (value) {
+                          if(value == null || value.isEmpty){
+                            return 'Enter Valid Name';
+                          }
+                          return null;
+                        },
+                        controller: _smsController,
+                        decoration: const InputDecoration(labelText: 'Verification code',
+                        ),
+                        onTap: () async {
+                          await SmsAutoFill().listenForCode;
+                        },
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(top: 16.0),
+                        alignment: Alignment.center,
+                        child: ElevatedButton(
+                            onPressed: () async {
+                              if (_formKey.currentState.validate()) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Processing Data')),
+                                );
+                              }
+                              final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+                              sharedPreferences.setString(ProflieModel.ph_key, _phoneNumberController.text);
+                              signInWithPhoneNumber(context);
+                            },
+                            style: ButtonStyle(
+                              foregroundColor:
+                              MaterialStateProperty.all<Color>(Colors.purple),
+                              backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.white),
+                              shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(24.0),
+                                ),
+                              ),
+                            ),
+                            child: Text("Sign in"),
+                        ),
+                      ),
+                    ],
+                  )
+              ),
+        ),
         ),
          ),
     );
   }
 }
-
 

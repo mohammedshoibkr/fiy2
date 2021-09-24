@@ -7,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_picker/gender_picker.dart';
 import 'package:gender_picker/source/enums.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,6 +16,7 @@ import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/ProflieModel.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
+import 'DashBoard.dart';
 import 'main.dart';
 import 'package:untitled/NavBar.dart';
 
@@ -297,7 +300,7 @@ class _ProflieState extends State<Proflie> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                           /* Get.to(DashboardScreen());*/
+                            Get.to(DashBoard());
 
                                },
                           style: ButtonStyle(
