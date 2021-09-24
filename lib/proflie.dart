@@ -3,14 +3,10 @@ import 'dart:core';
 import 'dart:io' as io;
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gender_picker/gender_picker.dart';
 import 'package:gender_picker/source/enums.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_storage/firebase_storage.dart';
@@ -20,6 +16,7 @@ import 'package:untitled/ProflieModel.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'main.dart';
 import 'package:untitled/NavBar.dart';
+
 
 
 final usersRef= FirebaseFirestore.instance.collection('users');
@@ -34,9 +31,10 @@ class Proflie extends StatefulWidget {
 }
 
 class _ProflieState extends State<Proflie> {
+  final _formKey = GlobalKey<FormState>();
   String? ph;
-  ProflieModel? register = ProflieModel(name: '', gender: '', age: '', imgurl: 'file:///assets/images/proflie.png', phno: '');
-
+  ProflieModel? register;
+  String? userDocId;
   @override
   void initState() {
     SharedPreferences sharedPreferences;
@@ -51,13 +49,14 @@ class _ProflieState extends State<Proflie> {
             .collection('users')
             .where(ProflieModel.ph_key, isEqualTo: ph)
             .get().then((value)  {
-          register = ProflieModel(phno: value.docs[0].data()[ProflieModel.ph_key],name: value.docs[0].data()['name'], gender:  value.docs[0].data()['gender'], age: value.docs[0].data()['age'],imgurl:  value.docs[0].data()['image']);
+          userDocId = value.docs[0].id;
+          register = ProflieModel(phno: value.docs[0].data()[ProflieModel.ph_key],name: value.docs[0].data()[ProflieModel.ph_name], gender:  value.docs[0].data()[ProflieModel.ph_gender], age: value.docs[0].data()[ProflieModel.ph_age],imgurl:  value.docs[0].data()[ProflieModel.ph_img]);
           name.text=register!.name;
           age.text=register!.age;
         });
        /* Timer(Duration(seconds: 2),() => Get.to(ph!=null ?Proflie(): MyHomePage()));*/
-      }else{
-
+      }
+      else{
       }
       setState(() {});
     });
@@ -88,7 +87,7 @@ class _ProflieState extends State<Proflie> {
   ImagePicker imagePicker = ImagePicker();
 
   Future getImage() async {
-    var image = await imagePicker.pickImage(source: ImageSource.gallery);
+    var image = await imagePicker.pickImage(source: ImageSource.gallery,maxHeight: 200, maxWidth: 200, imageQuality: 100);
 
     setState(() {
       _image = File(image!.path);
@@ -124,11 +123,7 @@ class _ProflieState extends State<Proflie> {
       print("Upload file path error ${error.toString()} ")
     });*/
   }
-
-
-
     @override
-
     Widget build(BuildContext context) {
       return Scaffold(
         drawer: NavBar(),
@@ -137,149 +132,201 @@ class _ProflieState extends State<Proflie> {
         ),
         resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
-        body: SafeArea(
+        body: Form(
+          key: _formKey,
           child: SingleChildScrollView(
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24, horizontal: 32),
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Material(
-                      elevation: 4.0,
-                      shape: CircleBorder(),
-                      clipBehavior: Clip.hardEdge,
-                      color: Colors.transparent,
-                      child: (_image != null) ? Image.file(
-                        _image!, fit: BoxFit.fill,) : Ink.image(
-                      /*  image: AssetImage("assets/images/proflie.png"),*/
-                        image: NetworkImage('https://avatars.githubusercontent.com/u/86800136?s=20&v=4'),
-                        fit: BoxFit.cover,
-                        width: 120.0,
-                        height: 120.0,
-                        child: InkWell(
-                          onTap: () {
-                            getImage();
+            child: SafeArea(
+              child: Padding(
+                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 32),
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Material(
+                        elevation: 4.0,
+                        shape: CircleBorder(),
+                        clipBehavior: Clip.hardEdge,
+                        color: Colors.transparent,
+                        child: (_image != null) ? Image.file(
+                          _image!, fit: BoxFit.cover) :CircleAvatar(
+                          radius: 60,
+                          backgroundImage: AssetImage("assets/images/proflie.png"),
+                         /* image: NetworkImage('https://avatars.githubusercontent.com/u/86800136?s=20&v=4'),*/
+                          /*fit: BoxFit.none,
+                          width: 80.0,
+                          height: 80.0,*/
+                          child: InkWell(
+                            onTap: () {
+                             /* getImage();*/
+                            },
+                            child: RawMaterialButton(
+                              elevation: 9,
+                              child: Icon(Icons.add_a_photo),
+                              padding: EdgeInsets.all(9.0),
+                              shape: CircleBorder(),
+                              onPressed: () {
+                                getImage();
+                              }
+
+                          ),
+
+                        ),
+
+                        ),
+                      ),
+                      SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
+                        controller: name,
+                        keyboardType: TextInputType.text,
+                           validator: (value) {
+                     if(value == null || value.isEmpty){
+                         return 'Enter Valid Name';
+                     }
+                     return null;
+                        },
+                        style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                        ),
+                        decoration: InputDecoration(
+                          labelText: 'Name',
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.orange),
+                              borderRadius: BorderRadius.circular(10)),
+
+                        ),
+                      ),
+                      SizedBox(
+                        height: 30,
+                      ),
+                      _genderWidget(true, true),
+
+                      SizedBox(
+                        height: 30,
+                      ),
+                      TextFormField(
+                        validator: (value) {
+                       if (value == null || value.isEmpty) {
+                        return 'Enter Valid Age';
+                        }
+                       return null;
+                       },
+                        controller: age,
+                        keyboardType: TextInputType.numberWithOptions(
+                            signed: false, decimal: false),
+                        style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                        ),
+                        decoration: InputDecoration(
+                          suffixIcon: Icon(Icons.arrow_drop_down),
+                          labelText: 'Age',
+                          enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.orange),
+                              borderRadius: BorderRadius.circular(10)
+
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 60,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () async {
+                            if (_formKey.currentState!.validate()) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Processing Data')),
+                              );
+                            }
+                            if(_image!.path!=null)
+                            {
+                              await uploadPic(context);
+                            }
+
+
+                           if(register==null)
+                             {
+                               register = ProflieModel(phno:ph,name:name.text, gender: gender.text, age: age.text,imgurl: _downloadurl!);
+                             }
+                           else{
+                             register!.name=name.text;
+                             register!.age=age.text;
+                             register!.gender=gender.text;
+                             register!.imgurl=(_downloadurl==null?register!.imgurl:_downloadurl)!;
+                           }
+
+                            if(userDocId!= null)
+                              {
+                                FirebaseFirestore.instance.collection('users').doc(userDocId).update({ProflieModel.ph_key: register!.phno,ProflieModel.ph_name: register!.name,ProflieModel.ph_gender: register!.gender,ProflieModel.ph_age: register!.age,ProflieModel.ph_img: register!.imgurl});
+                              }
+                            else{
+                              insertData(register!.toMap());
+                           }
+
                           },
-                        ),
-                      ),
-                    ),
 
-                    SizedBox(
-                      height: 50,
-                    ),
-                    TextField(
-                      controller: name,
-                      keyboardType: TextInputType.text,
-                      style:
-                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
-                      ),
-                      decoration: InputDecoration(
-                        labelText: 'Name',
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.orange),
-                            borderRadius: BorderRadius.circular(10)),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 30,
-                    ),
-                    _genderWidget(true, true),
+                          style: ButtonStyle(
 
-                    SizedBox(
-                      height: 30,
-                    ),
-                    TextFormField(
-                      controller: age,
-                      keyboardType: TextInputType.numberWithOptions(
-                          signed: false, decimal: false),
-                      style:
-                      TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
-                      ),
-                      decoration: InputDecoration(
-                        suffixIcon: Icon(Icons.arrow_drop_down),
-                        labelText: 'Age',
-                        enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(color: Colors.orange),
-                            borderRadius: BorderRadius.circular(10)
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: 60,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                         await uploadPic(context);
-                          final String pname = name.text;
-                          final String pgender = gender.text;
-                          final String page = age.text;
-                          final String pimgurl=imgurl.text;
-                          register = ProflieModel(phno:ph,name: pname, gender: pgender, age: page,imgurl: _downloadurl!);
-                          insertData(register!.toMap());
-                        },
+                            foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                            backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.lime
+                                .shade800),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
 
-                        style: ButtonStyle(
-
-                          foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                          backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.lime
-                              .shade800),
-                          shape: MaterialStateProperty.all<
-                              RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(14),
+                            child: Text(
+                                'SAVE',
+                                style: TextStyle(fontSize: 16)
                             ),
                           ),
-
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(14),
-                          child: Text(
-                              'SAVE',
-                              style: TextStyle(fontSize: 16)
-                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                         /* Get.to(DashboardScreen());*/
+                      SizedBox(
+                        height: 20,
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                           /* Get.to(DashboardScreen());*/
 
-                        },
-                        style: ButtonStyle(
+                               },
+                          style: ButtonStyle(
 
-                          foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
-                          backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.lightBlue
-                              .shade800),
-                          shape: MaterialStateProperty.all<
-                              RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
+                            foregroundColor:
+                            MaterialStateProperty.all<Color>(Colors.white),
+                            backgroundColor:
+                            MaterialStateProperty.all<Color>(Colors.lightBlue
+                                .shade800),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                            ),
+
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.all(14),
+                            child: Text(
+                                'Next',
+                                style: TextStyle(fontSize: 16)
                             ),
                           ),
-
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.all(14),
-                          child: Text(
-                              'Next',
-                              style: TextStyle(fontSize: 16)
-                          ),
                         ),
                       ),
-                    ),
 
-                  ]
+                    ]
+                ),
               ),
             ),
           ),
