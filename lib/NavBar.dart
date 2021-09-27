@@ -68,8 +68,8 @@ class _NavBarState extends State<NavBar> {
             decoration: BoxDecoration(
               color: Colors.blue,
               image: DecorationImage(
-                image: NetworkImage(
-                  'https://images.unsplash.com/photo-1632089594835-aa8a2a9471cc?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=353&q=80',
+                image: AssetImage(
+                  'assets/images/background.jpg',
                 ),
                 fit: BoxFit.cover,
               ),
