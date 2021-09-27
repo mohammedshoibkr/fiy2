@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
 import 'NavBar.dart';
 
 
@@ -35,6 +34,8 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
   int currentIndex = 0;
+  Widget appBarTitle = new Text("FIY");
+  Icon actionIcon = new Icon(Icons.search);
 
   setBottomBarIndex(index) {
     setState(() {
@@ -46,8 +47,33 @@ class _DashBoardState extends State<DashBoard> {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       drawer: NavBar(),
-      appBar: AppBar(
-        title: Text('FIY'),
+      appBar: new AppBar(
+          centerTitle: true,
+          title:appBarTitle,
+          actions: <Widget>[
+            new IconButton(icon: actionIcon,onPressed:(){
+              setState(() {
+                if ( this.actionIcon.icon == Icons.search){
+                  this.actionIcon = new Icon(Icons.close);
+                  this.appBarTitle = new TextField(
+                    style: new TextStyle(
+                      color: Colors.white,
+
+                    ),
+                    decoration: new InputDecoration(
+                        prefixIcon: new Icon(Icons.search,color: Colors.white),
+                        hintText: "Search...",
+                        hintStyle: new TextStyle(color: Colors.white)
+                    ),
+                  );}
+                else {
+                  this.actionIcon = new Icon(Icons.search);
+                  this.appBarTitle = new Text("AppBar Title");
+                }
+
+
+              });
+            } ,),]
       ),
       backgroundColor: Colors.white.withAlpha(55),
       body: Stack(
@@ -151,3 +177,9 @@ class BNBCustomPainter extends CustomPainter {
     return false;
   }
 }
+
+
+
+
+
+

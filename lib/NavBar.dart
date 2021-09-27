@@ -41,8 +41,8 @@ class _NavBarState extends State<NavBar> {
     SharedPreferences.getInstance().then((SharedPreferences sp) {
       sharedPreferences = sp;
       ph = sp.getString(ProflieModel.ph_key);
-      Timer(Duration(seconds: 2), () =>
-          Get.to(ph != null ? Proflie() : MyHomePage()));
+      /*Timer(Duration(seconds: 2), () =>
+          Get.to(ph != null ? Proflie() : MyHomePage()));*/
       setState(() {});
     });
   }

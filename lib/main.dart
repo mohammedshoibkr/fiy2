@@ -9,16 +9,38 @@ import 'package:sms_autofill/sms_autofill.dart';
 import 'package:untitled/proflie.dart';
 import 'ProflieModel.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', // id
+    'High Importance Notifications', // title
+    'This channel is used for important notifications.', // description
+    importance: Importance.high,
+    playSound: true);
 
-Future<void> _messageHandler(RemoteMessage message) async {
-  print('background message ${message.notification.body}');
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
+
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  await Firebase.initializeApp();
+  print('A bg message just showed up :  ${message.messageId}');
 }
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  FirebaseMessaging.onBackgroundMessage(_messageHandler);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channel);
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+
+  );
   runApp(GetMaterialApp(home:MyApp()));
 }
 
@@ -161,6 +183,7 @@ void signInWithPhoneNumber(BuildContext context) async {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
   final _formKey = GlobalKey<FormState>();
   FirebaseMessaging messaging;
   String finalphone;
@@ -172,14 +195,56 @@ class _MyHomePageState extends State<MyHomePage> {
     _selectedItem = _dropdownMenuItems[0].value;
     SharedPreferences sharedPreferences;
     super.initState();
-    messaging = FirebaseMessaging.instance;
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification notification = message.notification;
+      AndroidNotification android = message.notification?.android;
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.show(
+            notification.hashCode,
+            notification.title,
+            notification.body,
+            NotificationDetails(
+              android: AndroidNotificationDetails(
+                channel.id,
+                channel.name,
+                channel.description,
+                color: Colors.blue,
+                playSound: true,
+                icon: '@mipmap/ic_launcher',
+                visibility: NotificationVisibility.public
+              ),
+            ));
+      }
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      RemoteNotification notification = message.notification;
+      AndroidNotification android = message.notification?.android;
+      if (notification != null && android != null) {
+        showDialog(
+            context: context,
+            builder: (_) {
+              return AlertDialog(
+                title: Text(notification.title),
+                content: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [Text(notification.body)],
+                  ),
+                ),
+              );
+            });
+      }
+    });
+
+    /*messaging = FirebaseMessaging.instance;
     messaging.getToken().then((value) {
       print(value);
     });
     FirebaseMessaging.onMessage.listen((RemoteMessage event) {
       print("message recieved");
       print(event.notification.body);
-      /*showDialog(
+      *//*showDialog(
           context: context,
           builder: (BuildContext context) {
             return AlertDialog(
@@ -194,11 +259,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 )
               ],
             );
-          });*/
+          });*//*
+
     });
     FirebaseMessaging.onMessageOpenedApp.listen((message) {
       print('Message clicked!');
-    });
+    });*/
     SharedPreferences.getInstance().then((SharedPreferences sp) {
       sharedPreferences = sp;
      if( sp.containsKey(ProflieModel.ph_key) )
@@ -253,6 +319,23 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     return items;
   }
+  void showNotification() {
+    setState(() {
+      _counter++;
+    });
+    flutterLocalNotificationsPlugin.show(
+        0,
+        "Testing $_counter",
+        "welcome to FIY ",
+        NotificationDetails(
+            android: AndroidNotificationDetails(channel.id, channel.name, channel.description,
+                importance: Importance.high,
+                color: Colors.blue,
+                playSound: true,
+
+                icon: '@mipmap/ic_launcher')));
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -386,7 +469,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
                               sharedPreferences.setString(ProflieModel.ph_key, _phoneNumberController.text);
                               signInWithPhoneNumber(context);
-                            },
+                              showNotification();
+                              },
                             style: ButtonStyle(
                               foregroundColor:
                               MaterialStateProperty.all<Color>(Colors.purple),
