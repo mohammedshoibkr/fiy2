@@ -6,8 +6,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'DataModel.dart';
 import 'NavBar.dart';
 import 'ProflieModel.dart';
+import 'Screen.dart';
+import 'ScreenDetail.dart';
 import 'main.dart';
 import 'package:http/http.dart' as http;
 
@@ -35,6 +38,7 @@ print(response.body );
     //success, message
     bool res = map["success"];
     String msg= map["message"];
+    String token=map["token"];
     if(res){
       List<dynamic> data =map["data"];
       if(data != null){
@@ -47,6 +51,9 @@ print(response.body );
           });
           Get.to(MyHomePage());*/
         }
+        else{
+          GetOrders(token);
+        }
       }
     }
         return res;
@@ -57,6 +64,34 @@ print(response.body );
    /* throw Exception('Failed to create album.');*/
   }
 }
+GetOrders(String token) async{
+  http.Response response = await http.post(
+    Uri.parse('https://testapi.slrorganicfarms.com/cart/getOrdersOnStatus'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      'x-access-token': token,
+    },
+    body: jsonEncode(<String, String>{
+      'branchid': '1',
+      'Status': '1',
+    }),
+  );
+  print(response.body );
+  if (response.statusCode == 200) {
+    Map<String, dynamic> map = json.decode(response.body);
+    //success, message
+    bool res = map["success"];
+    String msg= map["message"];
+    if(res){
+      List<dynamic> data =map["data"];
+      if(data != null){
+        List<dynamic> orders=data;
+
+        }
+
+    }
+  }
+  }
 
 
 void main() {
@@ -126,6 +161,13 @@ class _DashBoardState extends State<DashBoard> {
       currentIndex = index;
     });
   }
+
+  static List<String> name= ['Raju','Ramu','Shoib','Mohammed','Manu'];
+  static List<String> phone_number=['9480652086','9480652086','9480652086','9480652086','9480652086'];
+  static List<String> orderid=['1','2','3','4','5'];
+  static List<String> orderdate=['21','12','3','13','19'];
+
+  final List<DataModel> UserData= List.generate(name.length, (index) => DataModel('${name[index]}', '${phone_number[index]}', '${orderid[index]}', '${orderdate[index]}'));
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -159,9 +201,37 @@ class _DashBoardState extends State<DashBoard> {
               });
             } ,),]
       ),
+
       backgroundColor: Colors.white.withAlpha(55),
       body: Stack(
         children: [
+          Padding(
+              padding: EdgeInsets.all(10),
+            child:  ListView.builder(
+                itemCount: UserData.length,
+                itemBuilder: (context,index){
+                  return Card(
+                    child: ListTile(
+                        title: Text(
+                          UserData[index].name,
+                          textAlign: TextAlign.center,
+                          textDirection: TextDirection.ltr,
+                        ),
+                        subtitle:Text(
+                          UserData[index].phone_number,
+                          textAlign: TextAlign.center,
+                        ),
+                        onTap:(){
+                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ScreenDetail(dataModel: UserData[index],)));
+                        }
+
+                    ),
+                  );
+                }
+            ),
+
+            ),
+
           Positioned(
             bottom: 0,
             left: 0,
@@ -177,7 +247,7 @@ class _DashBoardState extends State<DashBoard> {
                   ),
                   Center(
                     heightFactor: 0.6,
-                    child: FloatingActionButton(backgroundColor:  Colors.orange , child: Icon(Icons.people_alt_sharp), elevation: 0.1, onPressed: () {}),
+                    child: FloatingActionButton(backgroundColor:  Colors.orange , child: Icon(Icons.people_alt_sharp), elevation: 0.1, onPressed: () {MyScreen();}),
                   ),
                   Container(
                     width: size.width,
