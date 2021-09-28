@@ -1,11 +1,68 @@
+import 'dart:async';
+import 'dart:collection';
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'NavBar.dart';
+import 'ProflieModel.dart';
+import 'main.dart';
+import 'package:http/http.dart' as http;
+
+Future<bool> Login(String mobilenumber,String logintype,String device_token, bool createNewCustomerLogin,String branchId,String password) async {
+  http.Response response = await http.post(
+    Uri.parse('https://testapi.slrorganicfarms.com/auth/login'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'mobilenumber': mobilenumber,
+      'logintype': logintype,
+      'device_token': device_token,
+      'createNewCustomerLogin': createNewCustomerLogin.toString(),
+      'branchId': branchId,
+      'password': password,
+
+    }),
+  );
+print(response.body );
+  if (response.statusCode == 200) {
+    // If the server did return a 201 CREATED response,
+    // then parse the JSON.
+    Map<String, dynamic> map = json.decode(response.body);
+    //success, message
+    bool res = map["success"];
+    String msg= map["message"];
+    if(res){
+      List<dynamic> data =map["data"];
+      if(data != null){
+        Map<String, dynamic> dataArr = data[0];
+        if(dataArr["UserType"]==1) {
+          print("you are not autheroized use this app");
+          /*SharedPreferences sharedPreferences;
+          SharedPreferences.getInstance().then((SharedPreferences sp) {
+            sp.remove(ProflieModel.ph_key);
+          });
+          Get.to(MyHomePage());*/
+        }
+      }
+    }
+        return res;
+  } else {
+    // If the server did not return a 201 CREATED response,
+    // then throw an exception.
+    return false;
+   /* throw Exception('Failed to create album.');*/
+  }
+}
 
 
 void main() {
   runApp(MyApp());
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -25,6 +82,7 @@ class MyApp extends StatelessWidget {
 }
 
 
+
 class DashBoard extends StatefulWidget {
   const DashBoard({Key? key}) : super(key: key);
 
@@ -33,6 +91,32 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+  String? ph;
+  String? phn;
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferences sharedPreferences;
+    SharedPreferences.getInstance().then((SharedPreferences sp) {
+      sharedPreferences = sp;
+      if( sp.containsKey(ProflieModel.ph_key) )
+      {
+        //in this case the app is already installed, so we need to redirect to landing screen
+        ph = sp.getString(ProflieModel.ph_key)!;
+        phn=ph!.substring(3);
+        Login(phn!,'social','',false,'1','').then((value) => print(value));
+      }
+      else{
+        //in this case the app is installed newly or user signed out, so we need to redirect to signup page
+        Get.to(MyHomePage());
+      }
+      setState(() {});
+    });
+
+
+  }
+  
+
   int currentIndex = 0;
   Widget appBarTitle = new Text("FIY");
   Icon actionIcon = new Icon(Icons.search);
@@ -68,7 +152,7 @@ class _DashBoardState extends State<DashBoard> {
                   );}
                 else {
                   this.actionIcon = new Icon(Icons.search);
-                  this.appBarTitle = new Text("AppBar Title");
+                  this.appBarTitle = new Text("FIY");
                 }
 
 
@@ -165,7 +249,7 @@ class BNBCustomPainter extends CustomPainter {
         Offset(size.width * 0.60, 20), radius: Radius.circular(20.0),
         clockwise: false);
     path.quadraticBezierTo(size.width * 0.60, 0, size.width * 0.65, 0);
-    path.quadraticBezierTo(size.width * 0.80, 0, size.width, 20);
+    path.quadraticBezierTo(size.width * 0.80, 0, size.width, 25);
     path.lineTo(size.width, size.height);
     path.lineTo(0, size.height);
     path.lineTo(0, 20);

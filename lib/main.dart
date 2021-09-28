@@ -1,15 +1,21 @@
 // @dart=2.11
 import 'dart:async';
+import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
+import 'package:untitled/DashBoard.dart';
 import 'package:untitled/proflie.dart';
 import 'ProflieModel.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:http/http.dart' as http;
+
+
+
 
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -39,7 +45,6 @@ Future<void> main() async {
     alert: true,
     badge: true,
     sound: true,
-
   );
   runApp(GetMaterialApp(home:MyApp()));
 }
@@ -53,6 +58,7 @@ class ListItem {
 
 
 class MyApp extends StatelessWidget {
+
     @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -71,16 +77,16 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 final FirebaseAuth _auth = FirebaseAuth.instance;
-/*final  _scaffoldKey = GlobalKey<ScaffoldState>();*/
+final  _scaffoldKey = GlobalKey<ScaffoldState>();
 final TextEditingController _phoneNumberController = TextEditingController();
 final TextEditingController _smsController = TextEditingController();
 String _verificationId;
 final SmsAutoFill _autoFill = SmsAutoFill();
 String phoneNumEntered;
 
-/*void showSnackBar(String message) {
+void showSnackBar(String message) {
   _scaffoldKey.currentState.showSnackBar(SnackBar(content: Text(message)));
-}*/
+}
 void verifyPhoneNumber(ListItem _selectedItem,context) async {
   PhoneVerificationCompleted verificationCompleted =
       (PhoneAuthCredential phoneAuthCredential) async {
@@ -173,7 +179,7 @@ void signInWithPhoneNumber(BuildContext context) async {
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Failed to sign in: " /*+ e.toString()*/),
+          content: Text("Failed to sign in: " + e.toString()),
           backgroundColor: Colors.indigoAccent,
           padding: EdgeInsets.all(20),
             shape: StadiumBorder()
@@ -182,14 +188,14 @@ void signInWithPhoneNumber(BuildContext context) async {
   }
 }
 
+
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   final _formKey = GlobalKey<FormState>();
   FirebaseMessaging messaging;
   String finalphone;
   String ph;
-
-  @override
+     @override
     void initState() {
     _dropdownMenuItems = buildDropDownMenuItems(_dropdownItems);
     _selectedItem = _dropdownMenuItems[0].value;
@@ -236,6 +242,8 @@ class _MyHomePageState extends State<MyHomePage> {
             });
       }
     });
+
+
 
     /*messaging = FirebaseMessaging.instance;
     messaging.getToken().then((value) {
@@ -337,6 +345,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -426,7 +435,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         alignment: Alignment.center,
                         child: ElevatedButton(
                           child: Text("Verify Number"),
-                          onPressed: () async {
+                          onPressed: ()  {
                             verifyPhoneNumber(_selectedItem, context);
                           },
                           style: ButtonStyle(
@@ -492,6 +501,8 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
          ),
     );
+
   }
 }
+
 
