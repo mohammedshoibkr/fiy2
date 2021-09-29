@@ -16,7 +16,9 @@ import 'package:http/http.dart' as http;
 
 
 
+//Global Varibales
 
+String phoneNumberVerified;
 
 const AndroidNotificationChannel channel = AndroidNotificationChannel(
     'high_importance_channel', // id
@@ -279,6 +281,7 @@ class _MyHomePageState extends State<MyHomePage> {
        {
          //in this case the app is already installed, so we need to redirect to landing screen
          ph = sp.getString(ProflieModel.ph_key);
+           phoneNumberVerified=ph;
          Timer(Duration(seconds: 2),() => Get.to(ph!=null ? Proflie(): MyHomePage()));
        }
      else{

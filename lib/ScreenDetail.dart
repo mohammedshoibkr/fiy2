@@ -11,9 +11,10 @@ class ScreenDetail extends StatelessWidget {
       appBar: AppBar(title:Text('FIY')),
       body: Column(
         children: [
-          Text(dataModel.phone_number),
+          Text(dataModel.phone_number,),
           Text(dataModel.orderid),
           Text(dataModel.orderdate),
+
 
         ],
       ),

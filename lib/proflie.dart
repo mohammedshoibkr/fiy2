@@ -17,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:untitled/ProflieModel.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'DashBoard.dart';
+import 'Loading.dart';
 import 'Screen.dart';
 import 'main.dart';
 import 'package:untitled/NavBar.dart';
@@ -302,7 +303,7 @@ class _ProflieState extends State<Proflie> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            Get.to(DashBoard());
+                            Get.to(Loading());
 
                                },
                           style: ButtonStyle(

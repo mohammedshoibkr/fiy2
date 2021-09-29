@@ -131,26 +131,17 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     super.initState();
-    SharedPreferences sharedPreferences;
-    SharedPreferences.getInstance().then((SharedPreferences sp) {
-      sharedPreferences = sp;
-      if( sp.containsKey(ProflieModel.ph_key) )
-      {
-        //in this case the app is already installed, so we need to redirect to landing screen
-        ph = sp.getString(ProflieModel.ph_key)!;
-        phn=ph!.substring(3);
-        Login(phn!,'social','',false,'1','').then((value) => print(value));
-      }
-      else{
-        //in this case the app is installed newly or user signed out, so we need to redirect to signup page
-        Get.to(MyHomePage());
-      }
-      setState(() {});
-    });
-
-
+if(phoneNumberVerified!=null && phoneNumberVerified.length==13){
+    phn = phoneNumberVerified.substring(3);
+    Login(phn!, 'social', '', false, '1', '').then((value) => print(value));
   }
-  
+else {
+    Get.to(MyHomePage());
+}
+    setState(() {
+    });
+}
+
 
   int currentIndex = 0;
   Widget appBarTitle = new Text("FIY");
@@ -162,10 +153,10 @@ class _DashBoardState extends State<DashBoard> {
     });
   }
 
-  static List<String> name= ['Raju','Ramu','Shoib','Mohammed','Manu'];
-  static List<String> phone_number=['9480652086','9480652086','9480652086','9480652086','9480652086'];
-  static List<String> orderid=['1','2','3','4','5'];
-  static List<String> orderdate=['21','12','3','13','19'];
+  static List<String> name= ['Raju','Ramu','Shoib','Mohammed','Manu','Raju','Ramu','Shoib','Mohammed','Manu','Raju','Ramu','Shoib','Mohammed','Manu'];
+  static List<String> phone_number=['9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086'];
+  static List<String> orderid=['1','2','3','4','5','1','2','3','4','5','1','2','3','4','5'];
+  static List<String> orderdate=['21','12','3','13','19','21','12','3','13','19','21','12','3','13','19'];
 
   final List<DataModel> UserData= List.generate(name.length, (index) => DataModel('${name[index]}', '${phone_number[index]}', '${orderid[index]}', '${orderdate[index]}'));
   @override
@@ -196,8 +187,6 @@ class _DashBoardState extends State<DashBoard> {
                   this.actionIcon = new Icon(Icons.search);
                   this.appBarTitle = new Text("FIY");
                 }
-
-
               });
             } ,),]
       ),
@@ -224,12 +213,10 @@ class _DashBoardState extends State<DashBoard> {
                         onTap:(){
                           Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ScreenDetail(dataModel: UserData[index],)));
                         }
-
                     ),
                   );
                 }
             ),
-
             ),
 
           Positioned(
