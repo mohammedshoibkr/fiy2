@@ -5,66 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'DataModel.dart';
 import 'NavBar.dart';
-import 'ProflieModel.dart';
 import 'Screen.dart';
 import 'ScreenDetail.dart';
 import 'main.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart' as intl;
 
-Future<bool> Login(String mobilenumber,String logintype,String device_token, bool createNewCustomerLogin,String branchId,String password) async {
-  http.Response response = await http.post(
-    Uri.parse('https://testapi.slrorganicfarms.com/auth/login'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'mobilenumber': mobilenumber,
-      'logintype': logintype,
-      'device_token': device_token,
-      'createNewCustomerLogin': createNewCustomerLogin.toString(),
-      'branchId': branchId,
-      'password': password,
 
-    }),
-  );
-print(response.body );
-  if (response.statusCode == 200) {
-    // If the server did return a 201 CREATED response,
-    // then parse the JSON.
-    Map<String, dynamic> map = json.decode(response.body);
-    //success, message
-    bool res = map["success"];
-    String msg= map["message"];
-    String token=map["token"];
-    if(res){
-      List<dynamic> data =map["data"];
-      if(data != null){
-        Map<String, dynamic> dataArr = data[0];
-        if(dataArr["UserType"]==1) {
-          print("you are not autheroized use this app");
-          /*SharedPreferences sharedPreferences;
-          SharedPreferences.getInstance().then((SharedPreferences sp) {
-            sp.remove(ProflieModel.ph_key);
-          });
-          Get.to(MyHomePage());*/
-        }
-        else{
-          GetOrders(token);
-        }
-      }
-    }
-        return res;
-  } else {
-    // If the server did not return a 201 CREATED response,
-    // then throw an exception.
-    return false;
-   /* throw Exception('Failed to create album.');*/
-  }
-}
-GetOrders(String token) async{
+GetOrders(String token) async {
   http.Response response = await http.post(
     Uri.parse('https://testapi.slrorganicfarms.com/cart/getOrdersOnStatus'),
     headers: <String, String>{
@@ -76,28 +26,27 @@ GetOrders(String token) async{
       'Status': '1',
     }),
   );
-  print(response.body );
+  print(response.body);
   if (response.statusCode == 200) {
     Map<String, dynamic> map = json.decode(response.body);
     //success, message
     bool res = map["success"];
-    String msg= map["message"];
-    if(res){
-      List<dynamic> data =map["data"];
-      if(data != null){
-        List<dynamic> orders=data;
-
-        }
-
+    String msg = map["message"];
+    if (res) {
+      List<dynamic> data = map["data"];
+      if (data != null) {
+        List<dynamic> orders = data;
+        List<OrderModel> ordrList = List.generate(orders.length, (index) => OrderModel('${orders[index]["Id"]}', '${orders[index]["Phone"]}','${orders[index]["FullName"]}','${orders[index]["OrderDateAndTime"]}','${orders[index]["OrderCost"]}','${orders[index]["OrderAddress"]}','${orders[index]["Email"]}','${orders[index]["EstAmt"]}'));
+  return ordrList;
+      }
     }
   }
-  }
-
+  return null;
+}
 
 void main() {
   runApp(MyApp());
 }
-
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -105,18 +54,16 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'FIY',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          visualDensity: VisualDensity.adaptivePlatformDensity,
-        ),
-        home:DashBoard(),
+      debugShowCheckedModeBanner: false,
+      title: 'FIY',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: DashBoard(),
     );
   }
 }
-
-
 
 class DashBoard extends StatefulWidget {
   const DashBoard({Key? key}) : super(key: key);
@@ -131,17 +78,9 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     super.initState();
-if(phoneNumberVerified!=null && phoneNumberVerified.length==13){
-    phn = phoneNumberVerified.substring(3);
-    Login(phn!, 'social', '', false, '1', '').then((value) => print(value));
+    GetOrders(token);
+    setState(() {});
   }
-else {
-    Get.to(MyHomePage());
-}
-    setState(() {
-    });
-}
-
 
   int currentIndex = 0;
   Widget appBarTitle = new Text("FIY");
@@ -153,78 +92,115 @@ else {
     });
   }
 
-  static List<String> name= ['Raju','Ramu','Shoib','Mohammed','Manu','Raju','Ramu','Shoib','Mohammed','Manu','Raju','Ramu','Shoib','Mohammed','Manu'];
-  static List<String> phone_number=['9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086','9480652086'];
-  static List<String> orderid=['1','2','3','4','5','1','2','3','4','5','1','2','3','4','5'];
-  static List<String> orderdate=['21','12','3','13','19','21','12','3','13','19','21','12','3','13','19'];
 
-  final List<DataModel> UserData= List.generate(name.length, (index) => DataModel('${name[index]}', '${phone_number[index]}', '${orderid[index]}', '${orderdate[index]}'));
+
+  intl.DateFormat dateFormat= new intl.DateFormat("dd-MM-yyyy");
+  final Future<dynamic> _calculation = GetOrders(token);
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       drawer: NavBar(),
-      appBar: new AppBar(
-          centerTitle: true,
-          title:appBarTitle,
-          actions: <Widget>[
-            new IconButton(icon: actionIcon,onPressed:(){
-              setState(() {
-                if ( this.actionIcon.icon == Icons.search){
-                  this.actionIcon = new Icon(Icons.close);
-                  this.appBarTitle = new TextField(
-                    style: new TextStyle(
-                      color: Colors.white,
-
-                    ),
-                    decoration: new InputDecoration(
-                        prefixIcon: new Icon(Icons.search,color: Colors.white),
-                        hintText: "Search...",
-                        hintStyle: new TextStyle(color: Colors.white)
-                    ),
-                  );}
-                else {
-                  this.actionIcon = new Icon(Icons.search);
-                  this.appBarTitle = new Text("FIY");
-                }
-              });
-            } ,),]
-      ),
-
+      appBar:
+          new AppBar(centerTitle: true, title: appBarTitle, actions: <Widget>[
+           new IconButton(
+            icon: actionIcon,
+             onPressed: () {
+            setState(() {
+              if (this.actionIcon.icon == Icons.search) {
+                this.actionIcon = new Icon(Icons.close);
+                this.appBarTitle = new TextField(
+                  style: new TextStyle(
+                     color: Colors.white,
+                   ),
+                  decoration: new InputDecoration(
+                      prefixIcon: new Icon(Icons.search, color: Colors.white),
+                       hintText: "Search...",
+                      hintStyle: new TextStyle(color: Colors.white)),
+                 );
+               } else {
+                 this.actionIcon = new Icon(Icons.search);
+                 this.appBarTitle = new Text("FIY");
+              }
+            });
+           },
+         ),
+      ]),
       backgroundColor: Colors.white.withAlpha(55),
       body: Stack(
         children: [
-          Padding(
-              padding: EdgeInsets.all(10),
-            child:  ListView.builder(
-                itemCount: UserData.length,
-                itemBuilder: (context,index){
-                  return Card(
-                    child: ListTile(
-                        title: Text(
-                          UserData[index].name,
-                          textAlign: TextAlign.center,
-                          textDirection: TextDirection.ltr,
+          FutureBuilder(
+            builder: (BuildContext context,
+                AsyncSnapshot<dynamic> snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Column(children: [Text('Error')]),
+                );
+              } else if (snapshot.hasData) {
+                return ListView.builder(
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      List<OrderModel> project = snapshot.data!;
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                        subtitle:Text(
-                          UserData[index].phone_number,
-                          textAlign: TextAlign.center,
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                            title: Text(
+                             "OrderId- "+project[index].Id+"  "+"Date: " +dateFormat.format(new intl.DateFormat("yyyy-MM-dd").parse(project[index].OrderDateAndTime)),//new intl.DateFormat("yyyy/MM/dd", "en_US").parse(project[index].OrderDateAndTime)) ,
+                              style: TextStyle(fontSize: 18,color: Colors.black,fontWeight: FontWeight.w500,fontStyle: FontStyle.italic),
+                              textAlign: TextAlign.center,
+                              textDirection: TextDirection.ltr,
+                            ),
+                            subtitle: Text(
+                              project[index].Phone+" - "+project[index].FullName,
+                              style: TextStyle(fontSize: 16,color: Colors.black,fontStyle: FontStyle.normal),
+                              textAlign: TextAlign.center,
+                            ),
+
+                            onTap: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => OrderDetail(
+                                        dataModel: project[index],
+                                      )));
+                            }),
+                      );
+                    }
+                    //itemCount: projectSnap.data.
+                    );
+              } else {
+                return Center(
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        SizedBox(
+                          child: CircularProgressIndicator(),
+                          width: 60,
+                          height: 60,
                         ),
-                        onTap:(){
-                          Navigator.of(context).push(MaterialPageRoute(builder: (context)=> ScreenDetail(dataModel: UserData[index],)));
-                        }
-                    ),
-                  );
-                }
-            ),
-            ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 16),
+                          child: Text(
+                            'Awaiting result...',
+                          style: TextStyle(color:Colors.white,fontSize: 30,),
+                          ),
+                        )
+                      ]),
+                );
+              }
+            },
+            future: _calculation,
+          ),
+
 
           Positioned(
             bottom: 0,
             left: 0,
             child: Container(
               width: size.width,
-              height: 80,
+              height: 60,
               child: Stack(
                 overflow: Overflow.visible,
                 children: [
@@ -234,7 +210,13 @@ else {
                   ),
                   Center(
                     heightFactor: 0.6,
-                    child: FloatingActionButton(backgroundColor:  Colors.orange , child: Icon(Icons.people_alt_sharp), elevation: 0.1, onPressed: () {MyScreen();}),
+                    child: FloatingActionButton(
+                        backgroundColor: Colors.orange,
+                        child: Icon(Icons.people_alt_sharp),
+                        elevation: 0.1,
+                        onPressed: () {
+                          MyScreen();
+                        }),
                   ),
                   Container(
                     width: size.width,
@@ -245,7 +227,9 @@ else {
                         IconButton(
                           icon: Icon(
                             FontAwesomeIcons.home,
-                            color: currentIndex == 0 ? Colors.orange : Colors.grey.shade400,
+                            color: currentIndex == 0
+                                ? Colors.orange
+                                : Colors.grey.shade400,
                           ),
                           onPressed: () {
                             setBottomBarIndex(0);
@@ -255,7 +239,9 @@ else {
                         IconButton(
                             icon: Icon(
                               FontAwesomeIcons.locationArrow,
-                              color: currentIndex == 1 ? Colors.orange : Colors.grey.shade400,
+                              color: currentIndex == 1
+                                  ? Colors.orange
+                                  : Colors.grey.shade400,
                             ),
                             onPressed: () {
                               setBottomBarIndex(1);
@@ -266,7 +252,9 @@ else {
                         IconButton(
                             icon: Icon(
                               FontAwesomeIcons.solidCompass,
-                              color: currentIndex == 2 ? Colors.orange : Colors.grey.shade400,
+                              color: currentIndex == 2
+                                  ? Colors.orange
+                                  : Colors.grey.shade400,
                             ),
                             onPressed: () {
                               setBottomBarIndex(2);
@@ -274,7 +262,9 @@ else {
                         IconButton(
                             icon: Icon(
                               FontAwesomeIcons.rocketchat,
-                              color: currentIndex == 3 ? Colors.orange : Colors.grey.shade400,
+                              color: currentIndex == 3
+                                  ? Colors.orange
+                                  : Colors.grey.shade400,
                             ),
                             onPressed: () {
                               setBottomBarIndex(3);
@@ -291,20 +281,20 @@ else {
     );
   }
 }
+
 class BNBCustomPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = new Paint()
-      ..color = Colors.white
+      ..color = Colors.black45
       ..style = PaintingStyle.fill;
 
     Path path = Path();
     path.moveTo(0, 20); // Start
     path.quadraticBezierTo(size.width * 0.20, 0, size.width * 0.35, 0);
     path.quadraticBezierTo(size.width * 0.40, 0, size.width * 0.40, 20);
-    path.arcToPoint(
-        Offset(size.width * 0.60, 20), radius: Radius.circular(20.0),
-        clockwise: false);
+    path.arcToPoint(Offset(size.width * 0.60, 20),
+        radius: Radius.circular(20.0), clockwise: false);
     path.quadraticBezierTo(size.width * 0.60, 0, size.width * 0.65, 0);
     path.quadraticBezierTo(size.width * 0.80, 0, size.width, 25);
     path.lineTo(size.width, size.height);
@@ -313,14 +303,9 @@ class BNBCustomPainter extends CustomPainter {
     canvas.drawShadow(path, Colors.black, 5, true);
     canvas.drawPath(path, paint);
   }
+
   @override
   bool shouldRepaint(CustomPainter oldDelegate) {
     return false;
   }
 }
-
-
-
-
-
-

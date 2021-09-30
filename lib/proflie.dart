@@ -303,7 +303,7 @@ class _ProflieState extends State<Proflie> {
                         width: double.infinity,
                         child: ElevatedButton(
                           onPressed: () {
-                            Get.to(Loading());
+                            Get.to(DashBoard());
 
                                },
                           style: ButtonStyle(

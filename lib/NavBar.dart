@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:untitled/DashBoard.dart';
 import 'package:untitled/proflie.dart';
 import 'ProflieModel.dart';
 import 'main.dart';
@@ -51,7 +52,7 @@ class _NavBarState extends State<NavBar> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          UserAccountsDrawerHeader(accountName: Text('chandru'),
+          UserAccountsDrawerHeader(accountName: Text(UserFullName),
             accountEmail: Text(ph!),
             currentAccountPicture: CircleAvatar(
               child: ClipOval(
@@ -79,10 +80,19 @@ class _NavBarState extends State<NavBar> {
             onTap: () => {},
           ),
 
-          ListTile(
+         /* ListTile(
             leading: Icon(Icons.people_alt_sharp),
             title: Text('Profile'),
-            onTap: () => {},
+            onTap: () => {
+              Get.to(Proflie()),
+            },
+          ),*/
+          ListTile(
+            leading: Icon(Icons.dashboard),
+            title: Text('Dashboard'),
+            onTap: () => {
+              Get.to(DashBoard()),
+            },
           ),
           Divider(),
           ListTile(
