@@ -15,16 +15,18 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 
 //Global Varibales
+String baseUrl="https://testapi.slrorganicfarms.com";
 String phoneNumberVerified;
 String phoneNumEntered;
 String token;
 String _verificationId;
 String  UserFullName;
+String userId;
 
 Future<bool> Login(BuildContext context,String mobilenumber, String logintype, String device_token,
     bool createNewCustomerLogin, String branchId, String password) async {
   http.Response response = await http.post(
-    Uri.parse('https://testapi.slrorganicfarms.com/auth/login'),
+    Uri.parse(baseUrl+'/auth/login'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -73,6 +75,7 @@ Future<bool> Login(BuildContext context,String mobilenumber, String logintype, S
         } else {
           /*GetOrders(token);*/
           UserFullName=dataArr["FirstName"]+dataArr["LastName"];
+          userId=dataArr["UserId"];
           return true;
         }
       }
@@ -84,6 +87,22 @@ Future<bool> Login(BuildContext context,String mobilenumber, String logintype, S
     return false;
     /* throw Exception('Failed to create album.');*/
   }
+}
+setFirebaseMsgKey() async{
+  http.Response response = await http.post(
+    Uri.parse(baseUrl+'/auth/login'),
+    headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+    body: jsonEncode(<String, String>{
+      'UserId': userId,
+      'FirebaseMsgKey': logintype,
+
+    }),
+  );
+  print(response.body);
+  if (response.statusCode == 200) {}
+
 }
 
 

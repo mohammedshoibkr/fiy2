@@ -1,10 +1,7 @@
 import 'dart:async';
-import 'dart:collection';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'DataModel.dart';
 import 'NavBar.dart';
 import 'Screen.dart';
@@ -13,10 +10,9 @@ import 'main.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart' as intl;
 
-
 GetOrders(String token) async {
   http.Response response = await http.post(
-    Uri.parse('https://testapi.slrorganicfarms.com/cart/getOrdersOnStatus'),
+    Uri.parse(baseUrl+'/cart/getOrdersOnStatus'),
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       'x-access-token': token,
@@ -36,8 +32,18 @@ GetOrders(String token) async {
       List<dynamic> data = map["data"];
       if (data != null) {
         List<dynamic> orders = data;
-        List<OrderModel> ordrList = List.generate(orders.length, (index) => OrderModel('${orders[index]["Id"]}', '${orders[index]["Phone"]}','${orders[index]["FullName"]}','${orders[index]["OrderDateAndTime"]}','${orders[index]["OrderCost"]}','${orders[index]["OrderAddress"]}','${orders[index]["Email"]}','${orders[index]["EstAmt"]}'));
-  return ordrList;
+        List<OrderModel> ordrList = List.generate(
+            orders.length,
+            (index) => OrderModel(
+                '${orders[index]["Id"]}',
+                '${orders[index]["Phone"]}',
+                '${orders[index]["FullName"]}',
+                '${orders[index]["OrderDateAndTime"]}',
+                '${orders[index]["OrderCost"]}',
+                '${orders[index]["OrderAddress"]}',
+                '${orders[index]["Email"]}',
+                '${orders[index]["EstAmt"]}'));
+        return ordrList;
       }
     }
   }
@@ -92,9 +98,7 @@ class _DashBoardState extends State<DashBoard> {
     });
   }
 
-
-
-  intl.DateFormat dateFormat= new intl.DateFormat("dd-MM-yyyy");
+  intl.DateFormat dateFormat = new intl.DateFormat("dd-MM-yyyy");
   final Future<dynamic> _calculation = GetOrders(token);
   @override
   Widget build(BuildContext context) {
@@ -103,35 +107,34 @@ class _DashBoardState extends State<DashBoard> {
       drawer: NavBar(),
       appBar:
           new AppBar(centerTitle: true, title: appBarTitle, actions: <Widget>[
-           new IconButton(
-            icon: actionIcon,
-             onPressed: () {
+        new IconButton(
+          icon: actionIcon,
+          onPressed: () {
             setState(() {
               if (this.actionIcon.icon == Icons.search) {
                 this.actionIcon = new Icon(Icons.close);
                 this.appBarTitle = new TextField(
                   style: new TextStyle(
-                     color: Colors.white,
-                   ),
+                    color: Colors.white,
+                  ),
                   decoration: new InputDecoration(
                       prefixIcon: new Icon(Icons.search, color: Colors.white),
-                       hintText: "Search...",
+                      hintText: "Search...",
                       hintStyle: new TextStyle(color: Colors.white)),
-                 );
-               } else {
-                 this.actionIcon = new Icon(Icons.search);
-                 this.appBarTitle = new Text("FIY");
+                );
+              } else {
+                this.actionIcon = new Icon(Icons.search);
+                this.appBarTitle = new Text("FIY");
               }
             });
-           },
-         ),
+          },
+        ),
       ]),
       backgroundColor: Colors.white.withAlpha(55),
       body: Stack(
         children: [
           FutureBuilder(
-            builder: (BuildContext context,
-                AsyncSnapshot<dynamic> snapshot) {
+            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
               if (snapshot.hasError) {
                 return Center(
                   child: Column(children: [Text('Error')]),
@@ -146,19 +149,34 @@ class _DashBoardState extends State<DashBoard> {
                           borderRadius: BorderRadius.circular(10.0),
                         ),
                         child: ListTile(
-                          contentPadding: EdgeInsets.zero,
+                            contentPadding: EdgeInsets.zero,
                             title: Text(
-                             "OrderId- "+project[index].Id+"  "+"Date: " +dateFormat.format(new intl.DateFormat("yyyy-MM-dd").parse(project[index].OrderDateAndTime)),//new intl.DateFormat("yyyy/MM/dd", "en_US").parse(project[index].OrderDateAndTime)) ,
-                              style: TextStyle(fontSize: 18,color: Colors.black,fontWeight: FontWeight.w500,fontStyle: FontStyle.italic),
+                              "OrderId- " +
+                                  project[index].Id +
+                                  "  " +
+                                  "Date: " +
+                                  dateFormat.format(new intl.DateFormat(
+                                          "yyyy-MM-dd")
+                                      .parse(project[index]
+                                          .OrderDateAndTime)), //new intl.DateFormat("yyyy/MM/dd", "en_US").parse(project[index].OrderDateAndTime)) ,
+                              style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                  fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                               textDirection: TextDirection.ltr,
                             ),
                             subtitle: Text(
-                              project[index].Phone+" - "+project[index].FullName,
-                              style: TextStyle(fontSize: 16,color: Colors.black,fontStyle: FontStyle.normal),
+                              project[index].Phone +
+                                  " - " +
+                                  project[index].FullName,
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.black,
+                                  fontStyle: FontStyle.normal),
                               textAlign: TextAlign.center,
                             ),
-
                             onTap: () {
                               Navigator.of(context).push(MaterialPageRoute(
                                   builder: (context) => OrderDetail(
@@ -184,7 +202,10 @@ class _DashBoardState extends State<DashBoard> {
                           padding: EdgeInsets.only(top: 16),
                           child: Text(
                             'Awaiting result...',
-                          style: TextStyle(color:Colors.white,fontSize: 30,),
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 30,
+                            ),
                           ),
                         )
                       ]),
@@ -193,8 +214,6 @@ class _DashBoardState extends State<DashBoard> {
             },
             future: _calculation,
           ),
-
-
           Positioned(
             bottom: 0,
             left: 0,
