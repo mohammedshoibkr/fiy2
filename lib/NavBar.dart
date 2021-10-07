@@ -1,8 +1,9 @@
+import 'package:Fiy/proflie.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:untitled/DashBoard.dart';
+import 'package:Fiy/DashBoard.dart';
 import 'ProflieModel.dart';
 import 'main.dart';
 
@@ -78,13 +79,13 @@ class _NavBarState extends State<NavBar> {
             onTap: () => {},
           ),
 
-         /* ListTile(
+          ListTile(
             leading: Icon(Icons.people_alt_sharp),
             title: Text('Profile'),
             onTap: () => {
               Get.to(Proflie()),
             },
-          ),*/
+          ),
           ListTile(
             leading: Icon(Icons.dashboard),
             title: Text('Dashboard'),

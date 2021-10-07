@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'DataModel.dart';
 import 'NavBar.dart';
 import 'Screen.dart';
@@ -9,6 +11,10 @@ import 'ScreenDetail.dart';
 import 'main.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart' as intl;
+import 'package:Fiy/apiServices.dart';
+
+String selectedOrderId = "-1";
+OrderModel selectedDataModel = OrderModel('','','','','','','','');
 
 GetOrders(String token) async {
   http.Response response = await http.post(
@@ -79,15 +85,43 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+
+  TextEditingController _textController = TextEditingController();
   String? ph;
   String? phn;
+ /* static List<String> mainDataList = [
+    "Apple",
+    "Apricot",
+    "Banana",
+    "Blackberry",
+    "Coconut",
+    "Date",
+    "Fig",
+    "Gooseberry",
+    "Grapes",
+    "Lemon",
+    "Litchi",
+    "Mango",
+    "Orange",
+    "Papaya",
+    "Peach",
+    "Pineapple",
+    "Pomegranate",
+    "Starfruit"
+  ];*/
   @override
   void initState() {
     super.initState();
-    GetOrders(token);
+    getPostsData();
+
     setState(() {});
   }
-
+ getPostsData() async {
+   newDataList = await GetOrders(apiToken);
+   setState(()  {
+     mainDataList = newDataList;
+   });
+ }
   int currentIndex = 0;
   Widget appBarTitle = new Text("FIY");
   Icon actionIcon = new Icon(Icons.search);
@@ -99,14 +133,24 @@ class _DashBoardState extends State<DashBoard> {
   }
 
   intl.DateFormat dateFormat = new intl.DateFormat("dd-MM-yyyy");
-  final Future<dynamic> _calculation = GetOrders(token);
+  List<dynamic> newDataList = [];
+  List<dynamic> mainDataList = [];
+
+  onItemChanged(String value) {
+    setState(() {
+      newDataList = mainDataList
+          .where((dynamic) => (dynamic.Id.toLowerCase().contains(value.toLowerCase())) || (dynamic.FullName.toLowerCase().contains(value.toLowerCase())) || (dynamic.Phone.toLowerCase().contains(value.toLowerCase())))
+          .toList();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     return Scaffold(
       drawer: NavBar(),
       appBar:
-          new AppBar(centerTitle: true, title: appBarTitle, actions: <Widget>[
+      new AppBar(centerTitle: true, title: appBarTitle, actions: <Widget>[
         new IconButton(
           icon: actionIcon,
           onPressed: () {
@@ -121,6 +165,7 @@ class _DashBoardState extends State<DashBoard> {
                       prefixIcon: new Icon(Icons.search, color: Colors.white),
                       hintText: "Search...",
                       hintStyle: new TextStyle(color: Colors.white)),
+                  onChanged: onItemChanged,
                 );
               } else {
                 this.actionIcon = new Icon(Icons.search);
@@ -129,90 +174,94 @@ class _DashBoardState extends State<DashBoard> {
             });
           },
         ),
-      ]),
+        ]),
       backgroundColor: Colors.white.withAlpha(55),
       body: Stack(
-        children: [
-          FutureBuilder(
-            builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-              if (snapshot.hasError) {
-                return Center(
-                  child: Column(children: [Text('Error')]),
-                );
-              } else if (snapshot.hasData) {
-                return ListView.builder(
-                    itemCount: snapshot.data!.length,
-                    itemBuilder: (context, index) {
-                      List<OrderModel> project = snapshot.data!;
-                      return Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(
-                              "OrderId- " +
-                                  project[index].Id +
-                                  "  " +
-                                  "Date: " +
-                                  dateFormat.format(new intl.DateFormat(
-                                          "yyyy-MM-dd")
-                                      .parse(project[index]
-                                          .OrderDateAndTime)), //new intl.DateFormat("yyyy/MM/dd", "en_US").parse(project[index].OrderDateAndTime)) ,
-                              style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                  fontStyle: FontStyle.italic),
-                              textAlign: TextAlign.center,
-                              textDirection: TextDirection.ltr,
-                            ),
-                            subtitle: Text(
-                              project[index].Phone +
-                                  " - " +
-                                  project[index].FullName,
-                              style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.black,
-                                  fontStyle: FontStyle.normal),
-                              textAlign: TextAlign.center,
-                            ),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => OrderDetail(
-                                        dataModel: project[index],
-                                      )));
-                            }),
-                      );
-                    }
-                    //itemCount: projectSnap.data.
-                    );
-              } else {
-                return Center(
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        SizedBox(
-                          child: CircularProgressIndicator(),
-                          width: 60,
-                          height: 60,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 16),
-                          child: Text(
-                            'Awaiting result...',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 30,
-                            ),
+        children:<Widget> [
+
+         /* Padding(
+      // Even Padding On All Sides
+
+        // Symetric Padding
+        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
+        // Different Padding For All Sides
+        child: const Card(
+              child: Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text('Hello World!'),
+              ),
+            )
+
+       ),*/
+
+          /*Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Card(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              color: Colors.white,
+              elevation: 10,
+              child: Row(
+                children: [
+                  Text("fiy",style: TextStyle(color: Colors.black,fontSize: 30),),
+                ],
+              ),
+            ),
+          ),*/
+
+          Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.all(12.0),
+                  children: newDataList.map((data) {
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
                           ),
-                        )
-                      ]),
-                );
-              }
-            },
-            future: _calculation,
+                          child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            "OrderId- " +
+                                data.Id +
+                                "  " +
+                                "Date: " +
+                                dateFormat.format(new intl.DateFormat(
+                                    "yyyy-MM-dd")
+                                    .parse(data
+                                    .OrderDateAndTime)), //new intl.DateFormat("yyyy/MM/dd", "en_US").parse(project[index].OrderDateAndTime)) ,
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.black,
+                                fontWeight: FontWeight.w500,
+                                fontStyle: FontStyle.italic),
+                            textAlign: TextAlign.center,
+                            textDirection: TextDirection.ltr,
+                          ),
+                          subtitle: Text(
+                            data.Phone +
+                                " - " +
+                                data.FullName,
+                            style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.black,
+                                fontStyle: FontStyle.normal),
+                            textAlign: TextAlign.center,
+                          ),
+                          onTap: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => OrderDetail(
+                                  dataModel: data,
+                                )));
+                          }),
+                      );
+
+
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
           Positioned(
             bottom: 0,
@@ -300,6 +349,7 @@ class _DashBoardState extends State<DashBoard> {
     );
   }
 }
+
 
 class BNBCustomPainter extends CustomPainter {
   @override

@@ -7,24 +7,31 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:untitled/DashBoard.dart';
-import 'package:untitled/proflie.dart';
+import 'package:Fiy/DashBoard.dart';
+import 'package:Fiy/proflie.dart';
+import 'package:Fiy/push_notifications_manager.dart';
 import 'ProflieModel.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:http/http.dart' as http;
 
+import 'SplashScreen.dart';
+
 //Global Varibales
 String baseUrl="https://testapi.slrorganicfarms.com";
 String phoneNumberVerified;
 String phoneNumEntered;
-String token;
+String apiToken;
 String _verificationId;
 String  UserFullName;
-String userId;
+int userId;
+FirebaseMessaging messaging;
+bool newSignin=false;
+String cloudMsgToken;
+int branchId = 1;
+/*String userPwd="123456"*/
 
-Future<bool> Login(BuildContext context,String mobilenumber, String logintype, String device_token,
-    bool createNewCustomerLogin, String branchId, String password) async {
+Future<bool> Login(BuildContext context,String mobilenumber) async {
   http.Response response = await http.post(
     Uri.parse(baseUrl+'/auth/login'),
     headers: <String, String>{
@@ -32,11 +39,11 @@ Future<bool> Login(BuildContext context,String mobilenumber, String logintype, S
     },
     body: jsonEncode(<String, String>{
       'mobilenumber': mobilenumber,
-      'logintype': logintype,
-      'device_token': device_token,
-      'createNewCustomerLogin': createNewCustomerLogin.toString(),
-      'branchId': branchId,
-      'password': password,
+      'logintype': "social",
+      'device_token': '',
+      'createNewCustomerLogin': "false",
+      'branchId': branchId.toString(),
+      'password': "",
     }),
   );
   print(response.body);
@@ -47,7 +54,7 @@ Future<bool> Login(BuildContext context,String mobilenumber, String logintype, S
     //success, message
     bool res = map["success"];
     String msg = map["message"];
-    token = map["token"];
+    apiToken = map["token"];
     if (res) {
       List<dynamic> data = map["data"];
       if (data != null) {
@@ -55,7 +62,7 @@ Future<bool> Login(BuildContext context,String mobilenumber, String logintype, S
         if (dataArr["UserType"] == 1) {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
               content: Text(
-              "you are not autheroized use this app"),
+                  "you are not autheroized use this app"),
               backgroundColor: Colors.indigoAccent,
               padding: EdgeInsets.all(20),
               shape: StadiumBorder()));
@@ -74,8 +81,10 @@ Future<bool> Login(BuildContext context,String mobilenumber, String logintype, S
 
         } else {
           /*GetOrders(token);*/
-          UserFullName=dataArr["FirstName"]+dataArr["LastName"];
+          UserFullName=dataArr["FirstName"]+" "+dataArr["LastName"];
           userId=dataArr["UserId"];
+          if(newSignin)
+            setFirebaseMsgKey();
           return true;
         }
       }
@@ -89,19 +98,28 @@ Future<bool> Login(BuildContext context,String mobilenumber, String logintype, S
   }
 }
 setFirebaseMsgKey() async{
-  http.Response response = await http.post(
-    Uri.parse(baseUrl+'/auth/login'),
-    headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-    body: jsonEncode(<String, String>{
-      'UserId': userId,
-      'FirebaseMsgKey': logintype,
+  messaging = FirebaseMessaging.instance;
+  messaging.getToken().then((value) async {
+    cloudMsgToken= value;
+    /* print(value);*/
+    http.Response response = await http.post(
+      Uri.parse(baseUrl+'/auth/SetUserFirebaseMsgKey'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+        'x-access-token': apiToken,
+      },
+      body: jsonEncode(<String, String>{
+        'UserId': userId.toString(),
+        'FirebaseMsgKey': cloudMsgToken,
+      }),
+    );
+    print(response.body);
+    if (response.statusCode == 200) {
 
-    }),
-  );
-  print(response.body);
-  if (response.statusCode == 200) {}
+    }
+  });
+
+
 
 }
 
@@ -115,7 +133,7 @@ const AndroidNotificationChannel channel = AndroidNotificationChannel(
     playSound: true);
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+FlutterLocalNotificationsPlugin();
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
@@ -126,10 +144,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
-          AndroidFlutterLocalNotificationsPlugin>()
+      AndroidFlutterLocalNotificationsPlugin>()
       ?.createNotificationChannel(channel);
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
     alert: true,
@@ -149,10 +166,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.green,
-      ),
-      home: MyHomePage(),
+      home: SplashScreen(),
     );
   }
 }
@@ -206,11 +220,11 @@ void verifyPhoneNumber(ListItem _selectedItem, context) async {
   };
   PhoneCodeAutoRetrievalTimeout codeAutoRetrievalTimeout =
       (String verificationId) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("verification code: " + verificationId),
         backgroundColor: Colors.indigoAccent,
         padding: EdgeInsets.all(20),
-        shape: StadiumBorder()));
+        shape: StadiumBorder()));*/
     _verificationId = verificationId;
   };
   try {
@@ -241,17 +255,22 @@ void signInWithPhoneNumber(BuildContext context) async {
       smsCode: _smsController.text,
     );
     final User user = (await _auth.signInWithCredential(credential)).user;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    /*ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Successfully signed in UID: ${user.uid}"),
         backgroundColor: Colors.indigoAccent,
         padding: EdgeInsets.all(20),
-        shape: StadiumBorder()));
+        shape: StadiumBorder()));*/
     SharedPreferences sharedPreferences;
     SharedPreferences.getInstance().then((SharedPreferences sp) {
       sp.setString(ProflieModel.ph_key, phoneNumEntered);
     });
-    Navigator.push(
-        context, new MaterialPageRoute(builder: (context) => new Proflie()));
+    newSignin = true;
+    phoneNumberVerified=phoneNumEntered;
+    var phn = phoneNumberVerified.substring(3);
+    bool res= await  Login(context,phn);
+
+    Timer(Duration(seconds: 2),
+            () => Get.to(res ? DashBoard() : MyHomePage()));
   } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text("Failed to sign in: " + e.toString()),
@@ -272,6 +291,7 @@ class _MyHomePageState extends State<MyHomePage> {
     _dropdownMenuItems = buildDropDownMenuItems(_dropdownItems);
     _selectedItem = _dropdownMenuItems[0].value;
     SharedPreferences sharedPreferences;
+    PushNotificationsManager().init();
     super.initState();
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification notification = message.notification;
@@ -283,6 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
             notification.body,
             NotificationDetails(
               android: AndroidNotificationDetails(
+
                   channel.id, channel.name, channel.description,
                   color: Colors.blue,
                   playSound: true,
@@ -313,15 +334,14 @@ class _MyHomePageState extends State<MyHomePage> {
     });
 
 
-    SharedPreferences.getInstance().then((SharedPreferences sp) async{
+    /*SharedPreferences.getInstance().then((SharedPreferences sp) async{
       sharedPreferences = sp;
       if (sp.containsKey(ProflieModel.ph_key)) {
         //in this case the app is already installed, so we need to redirect to landing screen
         ph = sp.getString(ProflieModel.ph_key);
         phoneNumberVerified = ph;
         var phn = phoneNumberVerified.substring(3);
-      bool res= await  Login(context,phn, 'social', '', false, '1', '',);
-
+      bool res= await  Login(context,phn);
         Timer(Duration(seconds: 2),
             () => Get.to(res ? DashBoard() : MyHomePage()));
       } else {
@@ -329,14 +349,13 @@ class _MyHomePageState extends State<MyHomePage> {
         Get.to(MyHomePage());
       }
       setState(() {});
-    });
+    }*/
   }
 
   /*void intiState(){
     getValidationData().whenComplete(() async{
       Timer(Duration(seconds: 2),() => Get.to(finalphone==null ? MyHomePage(): Proflie()));
       Timer(Duration(seconds: 2),() => Get.to(finalphone==null ? MyHomePage(): Proflie()));
-
     });
   }
   Future getValidationData() async{
@@ -370,7 +389,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return items;
   }
 
-  void showNotification() {
+  /*void showNotification() {
     setState(() {
       _counter++;
     });
@@ -385,16 +404,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 color: Colors.blue,
                 playSound: true,
                 icon: '@mipmap/ic_launcher')));
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('FIY'),
-      ),
-      /*key: _scaffoldKey,*/
-      resizeToAvoidBottomInset: false,
       backgroundColor: Color(0xfff7f6fb),
       body: SingleChildScrollView(
         child: Form(
@@ -481,11 +495,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         },
                         style: ButtonStyle(
                           foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.purple),
+                          MaterialStateProperty.all<Color>(Colors.purple),
                           backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
+                          MaterialStateProperty.all<Color>(Colors.white),
                           shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                          MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24.0),
                             ),
@@ -519,19 +533,19 @@ class _MyHomePageState extends State<MyHomePage> {
                             );
                           }
                           final SharedPreferences sharedPreferences =
-                              await SharedPreferences.getInstance();
+                          await SharedPreferences.getInstance();
                           sharedPreferences.setString(
                               ProflieModel.ph_key, _phoneNumberController.text);
                           signInWithPhoneNumber(context);
-                          showNotification();
+                          /* showNotification();*/
                         },
                         style: ButtonStyle(
                           foregroundColor:
-                              MaterialStateProperty.all<Color>(Colors.purple),
+                          MaterialStateProperty.all<Color>(Colors.purple),
                           backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.white),
+                          MaterialStateProperty.all<Color>(Colors.white),
                           shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                          MaterialStateProperty.all<RoundedRectangleBorder>(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(24.0),
                             ),

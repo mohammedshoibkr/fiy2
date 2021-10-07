@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/DataModel.dart';
-import 'package:untitled/ScreenDetail.dart';
+import 'package:Fiy/DataModel.dart';
+import 'package:Fiy/ScreenDetail.dart';
 
 
 

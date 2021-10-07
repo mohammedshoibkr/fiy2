@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:untitled/DataModel.dart';
+import 'package:Fiy/DataModel.dart';
 import 'package:intl/intl.dart' as intl;
 
 class ScreenDetail extends StatelessWidget {
