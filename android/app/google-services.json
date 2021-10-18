@@ -1,62 +1,41 @@
 {
   "project_info": {
-    "project_number": "326922475493",
-    "project_id": "b2btestportal",
-    "storage_bucket": "b2btestportal.appspot.com"
+    "project_number": "287109201088",
+    "project_id": "simpfofiy",
+    "storage_bucket": "simpfofiy.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:326922475493:android:47fed36bce0be16a2b410c",
-        "android_client_info": {
-          "package_name": "com.simpfo.ecommerceadmin"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "326922475493-t1frdak5uj4psd4jjp08ambuq5v2nioe.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyAjQSNVoYIN3HU9Gz-8HGy8gRaflNS1ttM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "326922475493-t1frdak5uj4psd4jjp08ambuq5v2nioe.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:326922475493:android:c93cca67e741387a2b410c",
+        "mobilesdk_app_id": "1:287109201088:android:21fd6591b1c46cf4e68125",
         "android_client_info": {
           "package_name": "com.simpfo.fiy"
         }
       },
       "oauth_client": [
         {
-          "client_id": "326922475493-t1frdak5uj4psd4jjp08ambuq5v2nioe.apps.googleusercontent.com",
+          "client_id": "287109201088-m9msa1vf0mbrgo30s788n4g03vu8hdc9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.simpfo.fiy",
+            "certificate_hash": "6aa5a5d48f6988af708e8e399b649a3fe77bbc3e"
+          }
+        },
+        {
+          "client_id": "287109201088-3gdo5pp2ggos067aiovlh4prp9prp8ck.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAjQSNVoYIN3HU9Gz-8HGy8gRaflNS1ttM"
+          "current_key": "AIzaSyA_QGQGmluYiNXGfdl1krbP3589bkQ7RoE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "326922475493-t1frdak5uj4psd4jjp08ambuq5v2nioe.apps.googleusercontent.com",
+              "client_id": "287109201088-3gdo5pp2ggos067aiovlh4prp9prp8ck.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
