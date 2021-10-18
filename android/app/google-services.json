@@ -1,33 +1,41 @@
 {
   "project_info": {
-    "project_number": "46113104134",
-    "project_id": "verification-2ce23",
-    "storage_bucket": "verification-2ce23.appspot.com"
+    "project_number": "287109201088",
+    "project_id": "simpfofiy",
+    "storage_bucket": "simpfofiy.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:46113104134:android:6d4490e37f539b1fd3be87",
+        "mobilesdk_app_id": "1:287109201088:android:21fd6591b1c46cf4e68125",
         "android_client_info": {
-          "package_name": "com.example.untitled"
+          "package_name": "com.simpfo.fiy"
         }
       },
       "oauth_client": [
         {
-          "client_id": "46113104134-g5d18va8louca1albnj18s0t712quol7.apps.googleusercontent.com",
+          "client_id": "287109201088-m9msa1vf0mbrgo30s788n4g03vu8hdc9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.simpfo.fiy",
+            "certificate_hash": "6aa5a5d48f6988af708e8e399b649a3fe77bbc3e"
+          }
+        },
+        {
+          "client_id": "287109201088-3gdo5pp2ggos067aiovlh4prp9prp8ck.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC9M0V6HjXE9NQfY2FgnehHsfxBCqld5x8"
+          "current_key": "AIzaSyA_QGQGmluYiNXGfdl1krbP3589bkQ7RoE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "46113104134-g5d18va8louca1albnj18s0t712quol7.apps.googleusercontent.com",
+              "client_id": "287109201088-3gdo5pp2ggos067aiovlh4prp9prp8ck.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

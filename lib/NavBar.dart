@@ -1,11 +1,10 @@
-import 'dart:async';
-
+import 'package:Fiy/proflie.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:untitled/proflie.dart';
-
+import 'package:Fiy/DashBoard.dart';
 import 'ProflieModel.dart';
 import 'main.dart';
 
@@ -33,7 +32,6 @@ class Nav extends StatelessWidget {
 
 class _NavBarState extends State<NavBar> {
   @override
-  String? ph;
 
   void initState() {
     SharedPreferences sharedPreferences;
@@ -41,11 +39,18 @@ class _NavBarState extends State<NavBar> {
     SharedPreferences.getInstance().then((SharedPreferences sp) {
       sharedPreferences = sp;
       ph = sp.getString(ProflieModel.ph_key);
+      FirebaseFirestore.instance
+          .collection('users')
+          .where(ProflieModel.ph_key, isEqualTo: ph)
+          .get().then((value)  {
+        userDocId = value.docs[0].id;
+      register = ProflieModel(phno: value.docs[0].data()[ProflieModel.ph_key],name: value.docs[0].data()[ProflieModel.ph_name], gender:  value.docs[0].data()[ProflieModel.ph_gender], age: value.docs[0].data()[ProflieModel.ph_age],imgurl:  value.docs[0].data()[ProflieModel.ph_img]);
       /*Timer(Duration(seconds: 2), () =>
           Get.to(ph != null ? Proflie() : MyHomePage()));*/
       setState(() {});
     });
-  }
+  });
+        }
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +58,7 @@ class _NavBarState extends State<NavBar> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          UserAccountsDrawerHeader(accountName: Text('mohammed'),
+          UserAccountsDrawerHeader(accountName: Text(register!.name),
             accountEmail: Text(ph!),
             currentAccountPicture: CircleAvatar(
               child: ClipOval(
@@ -84,7 +89,16 @@ class _NavBarState extends State<NavBar> {
           ListTile(
             leading: Icon(Icons.people_alt_sharp),
             title: Text('Profile'),
-            onTap: () => {},
+            onTap: () => {
+              Get.to(Proflie()),
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.dashboard),
+            title: Text('Dashboard'),
+            onTap: () => {
+              Get.to(DashBoard()),
+            },
           ),
           Divider(),
           ListTile(

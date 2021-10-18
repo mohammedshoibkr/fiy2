@@ -14,13 +14,17 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:untitled/ProflieModel.dart';
+import 'package:Fiy/ProflieModel.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'DashBoard.dart';
+import 'Loading.dart';
+import 'Screen.dart';
 import 'main.dart';
-import 'package:untitled/NavBar.dart';
+import 'package:Fiy/NavBar.dart';
 
-
+ProflieModel? register;
+String? userDocId;
+String? ph;
 
 final usersRef= FirebaseFirestore.instance.collection('users');
 class Proflie extends StatefulWidget {
@@ -35,9 +39,9 @@ class Proflie extends StatefulWidget {
 
 class _ProflieState extends State<Proflie> {
   final _formKey = GlobalKey<FormState>();
-  String? ph;
-  ProflieModel? register;
-  String? userDocId;
+
+
+
   @override
   void initState() {
     SharedPreferences sharedPreferences;
@@ -242,7 +246,7 @@ class _ProflieState extends State<Proflie> {
                                 const SnackBar(content: Text('Processing Data')),
                               );
                             }
-                            if(_image!.path!=null)
+                            if(_image!=null && _image!.path!=null)
                             {
                               await uploadPic(context);
                             }
@@ -250,12 +254,12 @@ class _ProflieState extends State<Proflie> {
 
                            if(register==null)
                              {
-                               register = ProflieModel(phno:ph,name:name.text, gender: gender.text, age: age.text,imgurl: _downloadurl!);
+                               register = ProflieModel(phno:ph,name:name.text, gender: selectedGender.toString(), age: age.text,imgurl: _downloadurl!);
                              }
                            else{
                              register!.name=name.text;
                              register!.age=age.text;
-                             register!.gender=gender.text;
+                             register!.gender=selectedGender.toString();
                              register!.imgurl=(_downloadurl==null?register!.imgurl:_downloadurl)!;
                            }
 
@@ -346,7 +350,9 @@ class _ProflieState extends State<Proflie> {
       child: GenderPickerWithImage(
         showOtherGender: _showOthers,
         verticalAlignedText: _alignment,
-        onChanged: (Gender? _gender) {},
+        onChanged: (Gender? _gender) {
+          selectedGender=_gender;
+        },
         selectedGender: Gender.Male,
         selectedGenderTextStyle: TextStyle(fontWeight: FontWeight.bold),
         unSelectedGenderTextStyle: TextStyle(fontWeight: FontWeight.normal),
