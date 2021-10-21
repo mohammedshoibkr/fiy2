@@ -17,8 +17,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:Fiy/ProflieModel.dart';
 import 'package:firebase_core/firebase_core.dart' as firebase_core;
 import 'DashBoard.dart';
-import 'Loading.dart';
-import 'Screen.dart';
 import 'main.dart';
 import 'package:Fiy/NavBar.dart';
 

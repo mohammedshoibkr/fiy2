@@ -1,28 +1,16 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_picker/source/enums.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/src/extension_navigation.dart';
-import 'DataModel.dart';
 import 'NavBar.dart';
-import 'Screen.dart';
-import 'ScreenDetail.dart';
-import 'main.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart' as intl;
-import 'package:Fiy/apiServices.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:clipboard/clipboard.dart';
 
 Gender? selectedGender;
 String selectedOrderId = "-1";
-OrderModel selectedDataModel = OrderModel('','','','','','','','');
 DateTime? backbuttonpressedTime;
 
 
@@ -56,10 +44,6 @@ class DashBoard extends StatefulWidget {
 
 class _DashBoardState extends State<DashBoard> {
  final Stream<QuerySnapshot> data= FirebaseFirestore.instance.collection('data').snapshots();
-
-  TextEditingController _textController = TextEditingController();
-  String? ph;
-  String? phn;
    var rating = 2.0;
   @override
   void initState() {
@@ -95,9 +79,7 @@ class _DashBoardState extends State<DashBoard> {
      return false;
    }
    exit(0);
-   return true;
  }
-  intl.DateFormat dateFormat = new intl.DateFormat("dd-MM-yyyy");
   List<dynamic> newDataList = [];
   List<dynamic> mainDataList = [];
 
@@ -144,38 +126,6 @@ class _DashBoardState extends State<DashBoard> {
       backgroundColor: Colors.grey,
       body: Stack(
         children:<Widget> [
-
-         /* Padding(
-      // Even Padding On All Sides
-
-        // Symetric Padding
-        padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 5.0),
-        // Different Padding For All Sides
-        child: const Card(
-              child: Padding(
-                padding: EdgeInsets.all(16.0),
-                child: Text('Hello World!'),
-              ),
-            )
-
-       ),*/
-
-          /*Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              color: Colors.white,
-              elevation: 10,
-              child: Row(
-                children: [
-                  Text("fiy",style: TextStyle(color: Colors.black,fontSize: 30),),
-                ],
-              ),
-            ),
-          ),*/
-
           Column(
             children: [
               WillPopScope(

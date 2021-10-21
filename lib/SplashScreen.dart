@@ -7,7 +7,6 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:Fiy/main.dart';
 
-import 'DashBoard.dart';
 import 'ProflieModel.dart';
 import 'main.dart';
 class SplashScreen extends StatefulWidget {
