@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -17,6 +18,7 @@ import 'package:intl/intl.dart' as intl;
 import 'package:Fiy/apiServices.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
+import 'package:clipboard/clipboard.dart';
 
 Gender? selectedGender;
 String selectedOrderId = "-1";
@@ -106,6 +108,7 @@ class _DashBoardState extends State<DashBoard> {
           .toList();
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +236,15 @@ class _DashBoardState extends State<DashBoard> {
                                               ),
                                               iconSize: 25,
                                               color: Colors.blue,
-                                              onPressed: () {},
+                                              onPressed: () {
+                                                FlutterClipboard.copy(dataitem.docs[index]['name']).then(( value ) =>
+                                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                                        content: Text("copy to clipboard",textAlign: TextAlign.center),
+                                                        backgroundColor: Colors.indigoAccent,
+                                                        padding: EdgeInsets.all(20),
+                                                        shape: StadiumBorder())));
+
+                                              },
                                             ),
                                             IconButton(
                                               icon: Icon(
@@ -241,7 +252,9 @@ class _DashBoardState extends State<DashBoard> {
                                               ),
                                               iconSize: 25,
                                               color: Colors.blue,
-                                              onPressed: () {},
+                                              onPressed: () {
+
+                                              },
                                             ),
                                           ],
                                         ),
@@ -303,7 +316,7 @@ class _DashBoardState extends State<DashBoard> {
                         child: Icon(Icons.people_alt_sharp),
                         elevation: 0.1,
                         onPressed: () {
-                          MyScreen();
+                          DashBoard();
                         }),
                   ),
                   Container(
