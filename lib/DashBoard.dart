@@ -4,13 +4,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_picker/source/enums.dart';
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'NavBar.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:smooth_star_rating/smooth_star_rating.dart';
 import 'package:clipboard/clipboard.dart';
 
 Gender? selectedGender;
-String selectedOrderId = "-1";
 DateTime? backbuttonpressedTime;
 
 
@@ -173,7 +174,7 @@ class _DashBoardState extends State<DashBoard> {
                                             Expanded(
                                               child: Text('${dataitem.docs[index]['name']}',style: TextStyle(
                                                 fontSize: 20,
-                                                fontWeight: FontWeight.w500,
+                                                fontWeight: FontWeight.bold,
                                               ),
                                               ),
                                             ),
@@ -208,25 +209,41 @@ class _DashBoardState extends State<DashBoard> {
                                             ),
                                           ],
                                         ),
-                                        SmoothStarRating(
-                                        rating: rating,
-                                          isReadOnly: true,
-                                        size: 30,
-                                          filledIconData: Icons.star,
-                                          halfFilledIconData: Icons.star_half,
-                                          defaultIconData: Icons.star_border,
-                                        starCount: 5,
-                                        onRated: (value) {
-                                          setState(() {
-                                            rating = dataitem.docs[index]['rating'];
-                                            rating=value;
-                                          });
-                                        }
+                                        Row(
+                                          children: [
+                                            Text(dataitem.docs[index]['rating'],style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w300,
+                                            ),
+                                            ),
+                                            SmoothStarRating(
+                                            rating: rating,
+                                              isReadOnly: true,
+                                            size: 25,
+                                              filledIconData: Icons.star,
+                                              halfFilledIconData: Icons.star_half,
+                                              defaultIconData: Icons.star_border,
+                                            color: Colors.orange,
+                                            borderColor: Colors.grey,
+                                            starCount: 5,
+                                            onRated: (value) {
+                                              setState(() {
+                                                rating = dataitem.docs[index]['rating'];
+                                                rating=value;
+                                              });
+                                            }
                                       ),
+                                            Text('(2)',style: TextStyle(
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w300,
+                                            ),
+                                            ),
+                                          ],
+                                        ),
                                       Expanded(
                                         child: Text('${dataitem.docs[index]['address']}',style: TextStyle(
                                         fontSize: 13,
-                                        fontWeight: FontWeight.w500
+                                        fontWeight: FontWeight.w400
                                         ),
                                         ),
                                       ),

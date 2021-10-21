@@ -20,6 +20,8 @@ import 'DashBoard.dart';
 import 'main.dart';
 import 'package:Fiy/NavBar.dart';
 
+
+String? _downloadurl;
 ProflieModel? register;
 String? userDocId;
 String? ph;
@@ -69,7 +71,7 @@ class _ProflieState extends State<Proflie> {
   }
 
 
-  String? _downloadurl;
+
    final name = TextEditingController();
   final age = TextEditingController();
   final gender = TextEditingController();
