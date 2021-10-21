@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gender_picker/source/enums.dart';
@@ -13,12 +15,13 @@ import 'main.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart' as intl;
 import 'package:Fiy/apiServices.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:smooth_star_rating/smooth_star_rating.dart';
 
 Gender? selectedGender;
-
 String selectedOrderId = "-1";
 OrderModel selectedDataModel = OrderModel('','','','','','','','');
-
+DateTime? backbuttonpressedTime;
 
 
 void main() {
@@ -50,35 +53,19 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+ final Stream<QuerySnapshot> data= FirebaseFirestore.instance.collection('data').snapshots();
 
   TextEditingController _textController = TextEditingController();
   String? ph;
   String? phn;
- /* static List<String> mainDataList = [
-    "Apple",
-    "Apricot",
-    "Banana",
-    "Blackberry",
-    "Coconut",
-    "Date",
-    "Fig",
-    "Gooseberry",
-    "Grapes",
-    "Lemon",
-    "Litchi",
-    "Mango",
-    "Orange",
-    "Papaya",
-    "Peach",
-    "Pineapple",
-    "Pomegranate",
-    "Starfruit"
-  ];*/
+   var rating = 2.0;
   @override
   void initState() {
     super.initState();
+      setState(() {
 
-    setState(() {});
+      });
+
   }
 
   int currentIndex = 0;
@@ -90,7 +77,24 @@ class _DashBoardState extends State<DashBoard> {
       currentIndex = index;
     });
   }
+ Future<bool> onWillPop() async {
+   DateTime currentTime = DateTime.now();
 
+   //Statement 1 Or statement2
+   bool DashBoard = backbuttonpressedTime == null ||
+       currentTime.difference(backbuttonpressedTime!) > Duration(seconds: 3);
+
+   if (DashBoard) {
+     backbuttonpressedTime = currentTime;
+     Fluttertoast.showToast(
+         msg: "Double Click to exit app",
+         backgroundColor: Colors.white,
+         textColor: Colors.black);
+     return false;
+   }
+   exit(0);
+   return true;
+ }
   intl.DateFormat dateFormat = new intl.DateFormat("dd-MM-yyyy");
   List<dynamic> newDataList = [];
   List<dynamic> mainDataList = [];
@@ -134,7 +138,7 @@ class _DashBoardState extends State<DashBoard> {
           },
         ),
         ]),
-      backgroundColor: Colors.white.withAlpha(55),
+      backgroundColor: Colors.grey,
       body: Stack(
         children:<Widget> [
 
@@ -171,57 +175,114 @@ class _DashBoardState extends State<DashBoard> {
 
           Column(
             children: [
-              Expanded(
-                child: ListView(
-                  padding: EdgeInsets.all(12.0),
-                  children: newDataList.map((data) {
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: ListTile(
-                          contentPadding: EdgeInsets.zero,
-                          title: Text(
-                            "OrderId- " +
-                                data.Id +
-                                "  " +
-                                "Date: " +
-                                dateFormat.format(new intl.DateFormat(
-                                    "yyyy-MM-dd")
-                                    .parse(data
-                                    .OrderDateAndTime)), //new intl.DateFormat("yyyy/MM/dd", "en_US").parse(project[index].OrderDateAndTime)) ,
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.black,
-                                fontWeight: FontWeight.w500,
-                                fontStyle: FontStyle.italic),
-                            textAlign: TextAlign.center,
-                            textDirection: TextDirection.ltr,
-                          ),
-                          subtitle: Text(
-                            data.Phone +
-                                " - " +
-                                data.FullName,
-                            style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.black,
-                                fontStyle: FontStyle.normal),
-                            textAlign: TextAlign.center,
-                          ),
-                          onTap: () {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => OrderDetail(
-                                  dataModel: data,
-                                )));
-                          }),
-                      );
+              WillPopScope(
+                onWillPop: onWillPop,
+                child: Expanded(
+                  child: Container(
+                    height: size.height,
+                    padding: const EdgeInsets.symmetric(vertical: 20),
+                    child: StreamBuilder<QuerySnapshot>(
+                      stream: data,
+                      builder: (
+                      BuildContext context,
+                      AsyncSnapshot<QuerySnapshot> snapshot,
+                      ) {
+                        if(snapshot.hasError){
+                          return Text('something went wrong');
+                        }
+                        if(snapshot.connectionState==ConnectionState.waiting){
+                          return Text('loading');
+                        }
+                        final dataitem=snapshot.requireData;
 
-
-                  }).toList(),
+                        return ListView.builder(
+                            itemCount: dataitem.size,
+                            itemBuilder: (context,index){
+                              return SingleChildScrollView(
+                                physics: BouncingScrollPhysics(),
+                                child: Card(
+                                    shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                ),
+                                  elevation: 50,
+                                   shadowColor: Colors.black,
+                                   color: Colors.white,
+                                   child: SizedBox(
+                                    width: 300,
+                                     height: 190,
+                                   child: Padding(
+                                    padding: const EdgeInsets.all(30.0),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Text('${dataitem.docs[index]['name']}',style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.w500,
+                                              ),
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 34,
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                FontAwesomeIcons.file,
+                                              ),
+                                              iconSize: 25,
+                                              color: Colors.blue,
+                                              onPressed: () {},
+                                            ),
+                                            IconButton(
+                                              icon: Icon(
+                                                FontAwesomeIcons.shareSquare,
+                                              ),
+                                              iconSize: 25,
+                                              color: Colors.blue,
+                                              onPressed: () {},
+                                            ),
+                                          ],
+                                        ),
+                                        SmoothStarRating(
+                                        rating: rating,
+                                          isReadOnly: true,
+                                        size: 30,
+                                          filledIconData: Icons.star,
+                                          halfFilledIconData: Icons.star_half,
+                                          defaultIconData: Icons.star_border,
+                                        starCount: 5,
+                                        onRated: (value) {
+                                          setState(() {
+                                            rating = dataitem.docs[index]['rating'];
+                                            rating=value;
+                                          });
+                                        }
+                                      ),
+                                      Expanded(
+                                        child: Text('${dataitem.docs[index]['address']}',style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500
+                                        ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                ),
+                                ),
+                              );
+                            },
+                        );
+                      }
+                    ),
+                  ),
                 ),
               ),
             ],
           ),
+
           Positioned(
             bottom: 0,
             left: 0,
