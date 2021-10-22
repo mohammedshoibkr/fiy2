@@ -190,11 +190,13 @@ class _DashBoardState extends State<DashBoard> {
                                     ),
                                   ),
                                   Expanded(
-                                    child: Text(
-                                      'Nothing found ..would you like to search other location',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
+                                    child: Center(
+                                      child: Text(
+                                        'Nothing found ..\nwould you like to search other location',
+                                        style: TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
                                   ),
