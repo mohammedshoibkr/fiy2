@@ -138,6 +138,8 @@ class _DashBoardState extends State<DashBoard> {
               if (this.actionIcon.icon == Icons.search) {
                 this.actionIcon = new Icon(Icons.close);
                 this.appBarTitle = new TextField(
+                  cursorColor: Colors.white,
+                  cursorWidth: 2,
                   style: new TextStyle(
                     color: Colors.white,
                   ),
