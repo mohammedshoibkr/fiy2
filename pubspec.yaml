@@ -80,6 +80,7 @@ flutter:
     - assets/images/background.jpg
     - assets/images/loading-1.gif
     - assets/images/Simpfo_Logo-removebg-preview.png
+    - assets/images/dog.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

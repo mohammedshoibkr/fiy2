@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:Fiy/DashBoard.dart';
 import 'package:Fiy/proflie.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -31,7 +32,7 @@ class _SplashScreenState extends State<SplashScreen> {
         ph = sp.getString(ProflieModel.ph_key)!;
         phoneNumberVerified = ph;
         ph = sp.getString(ProflieModel.ph_key)!;
-        Timer(Duration(seconds: 2),() => Get.to(ph!=null ? Proflie(): MyHomePage()));
+        Timer(Duration(seconds: 2),() => Get.to(ph!=null ? DashBoard(): MyHomePage()));
       } else {
         //in this case the app is installed newly or user signed out, so we need to redirect to signup page
         Get.to(MyHomePage());
