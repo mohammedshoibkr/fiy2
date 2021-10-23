@@ -57,6 +57,7 @@ class _ProfileEditState extends State<ProfileEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.teal[100],
       body: SafeArea(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: 15, horizontal: 5),
@@ -88,7 +89,7 @@ class _ProfileEditState extends State<ProfileEdit> {
                                         FontAwesomeIcons.arrowLeft,
                                       ),
                                       iconSize: 25,
-                                      color: Colors.blue,
+                                      color: Colors.black,
                                       onPressed: () {
                                         Navigator.push(
                                             context, new MaterialPageRoute(builder: (context) => new DashBoard()));
@@ -118,7 +119,7 @@ class _ProfileEditState extends State<ProfileEdit> {
                                         FontAwesomeIcons.userEdit,
                                       ),
                                       iconSize: 25,
-                                      color: Colors.blue,
+                                      color: Colors.black,
                                       onPressed: () {
                                         Navigator.push(
                                             context, new MaterialPageRoute(builder: (context) => new Proflie()));
@@ -130,18 +131,17 @@ class _ProfileEditState extends State<ProfileEdit> {
                               SizedBox(
                                 height: 20,
                               ),
-                              Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
-                                  child: Text(
-                                    register!.name,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
+                              Padding(
+                                  padding: const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                    child: Text(
+                                      register!.name,
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.bold,
+                                      ),
                                     ),
-                                  ),
                                 ),
-                              ), SizedBox(
+                               SizedBox(
                                 height: 10,
                               ),
                               Center(
