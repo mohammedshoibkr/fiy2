@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'AddLocation.dart';
 import 'ProflieModel.dart';
 
 class MyApp extends StatelessWidget {
@@ -175,7 +176,10 @@ class _ProfileEditState extends State<ProfileEdit> {
                                     child: SizedBox(
                                       width: 165,
                                       child: ElevatedButton(
-                                        onPressed: ()  {},
+                                        onPressed: ()  {
+                                          Navigator.push(
+                                              context, new MaterialPageRoute(builder: (context) => new  AddLocation()));
+                                        },
 
                                         style: ButtonStyle(
 
