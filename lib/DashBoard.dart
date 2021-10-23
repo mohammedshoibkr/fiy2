@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:Fiy/Address.dart';
 import 'package:Fiy/profileedit.dart';
+import 'package:Fiy/push_notifications_manager.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -56,6 +57,7 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     super.initState();
+    PushNotificationsManager().init();
     setState(() {
       getPostsData();
       uplode();
@@ -78,7 +80,6 @@ class _DashBoardState extends State<DashBoard> {
     for (var doc in querySnapshot.docs) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       testData.add(data);
-      oriData.add(data);
     }
     ;
   }
@@ -393,7 +394,8 @@ class _DashBoardState extends State<DashBoard> {
                               ),
                               onPressed: () {
                                 setBottomBarIndex(1);
-                                Get.to(ProfileEdit());
+                                Navigator.push(
+                                    context, new MaterialPageRoute(builder: (context) => new ProfileEdit()));
                               }),
                           Container(
                             width: size.width * 0.20,

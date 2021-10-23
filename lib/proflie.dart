@@ -92,7 +92,7 @@ class _ProflieState extends State<Proflie> {
   ImagePicker imagePicker = ImagePicker();
 
   Future getImage() async {
-    var image = await imagePicker.pickImage(source: ImageSource.gallery,maxHeight: 200, maxWidth: 200, imageQuality: 100);
+    var image = await imagePicker.pickImage(source: ImageSource.gallery,maxHeight: 200, maxWidth: 200, imageQuality: 25);
 
     setState(() {
       _image = File(image!.path);
